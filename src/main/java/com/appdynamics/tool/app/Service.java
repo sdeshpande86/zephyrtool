@@ -6,7 +6,7 @@ public class Service {
 	public static void main(String[] args) throws InterruptedException {
 		App.initialize();
 		get("/zephyrtool/getfeatures", (request, response) -> {
-				return App.gson.toJson(App.usecaseFeaturesMap);
+				return App.gson.toJson(App.usecaseFeaturesMap.get("Technical Debt"));
 		});
 	}
 }
