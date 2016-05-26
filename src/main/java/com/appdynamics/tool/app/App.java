@@ -19,20 +19,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class App {
-	public static List<String> usecases;
-	public static Map<String, List<Issue>> usecaseFeaturesMap;
+	public static List<String> usecases = new ArrayList<String>();
+	public static Map<String, List<Issue>> usecaseFeaturesMap = new HashMap<String, List<Issue>>();
 	public static JsonParser parser = new JsonParser();
 	public static Gson gson = new Gson();
-	
-	static {
-		usecases = new ArrayList<String>();
-		usecases.add("APM Functional");
-		usecases.add("Technical Debt");
-		usecaseFeaturesMap = new HashMap<String, List<Issue>>();
-		for (String usecase : usecases) {
-			usecaseFeaturesMap.put(usecase, new ArrayList<Issue>());
-		}
-	}
 	
 	public static String sendRequest(String url) {
 		Client client = ClientBuilder.newClient();
@@ -46,6 +36,20 @@ public class App {
 			result.addAll(entry.getValue());
 		}
 		return result;
+	}
+	
+	public static void getUsecases(String sampleIssueKey) {
+		String url = "https://singularity.jira.com/rest/api/2/issue/" + sampleIssueKey + "/editmeta";
+		String output = sendRequest(url);
+		JsonObject issueFieldsJson = parser.parse(output).getAsJsonObject().get("fields").getAsJsonObject();
+		JsonArray usecaseValuesJson = issueFieldsJson.get("customfield_10520").getAsJsonObject().get("allowedValues").getAsJsonArray(); 
+		for (int i=0; i<usecaseValuesJson.size(); i++) {
+			usecases.add(usecaseValuesJson.get(i).getAsJsonObject().get("value").getAsString());
+		}
+		for (String usecase : usecases) {
+			usecaseFeaturesMap.put(usecase, new ArrayList<Issue>());
+		}
+		System.out.println(usecases);
 	}
 	
 	public static void initialize() throws InterruptedException {
@@ -62,6 +66,10 @@ public class App {
 			JsonObject issue = issuesList.get(i).getAsJsonObject();
 			feature.setId(issue.get("id").getAsString());
 			feature.setKey(issue.get("key").getAsString());
+			// Construct list of usecases by calling editmeta for the first feature issue
+			if (i == 0) {
+				getUsecases(feature.getKey());
+			}
 			JsonObject fields = issue.get("fields").getAsJsonObject();
 			feature.setSummary(fields.get("summary").getAsString());
 			String usecase = fields.get("customfield_10520").getAsJsonObject().get("value").getAsString();
