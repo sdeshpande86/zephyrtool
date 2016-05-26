@@ -8,6 +8,7 @@ public class Issue {
 	private String key;
 	private String summary;
 	private String testType;
+	private List<String> components;
 	private List<Issue> children;
 
 	public String getId() {
@@ -60,14 +61,29 @@ public class Issue {
 		this.testType = testType;
 	}
 	
+	public List<String> getComponents() {
+		if (components == null) {
+			components = new ArrayList<String>();
+		}
+		return components;
+	}
+
+	public void addComponent(String component) {
+		if (components == null) {
+			components = new ArrayList<String>();
+		}
+		this.components.add(component);
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("ID: ").append(getId()).append(", ")
 		.append("Key: ").append(getKey()).append(", ")
 		.append("Test Type: ").append(getTestType()).append(", ")
-		.append("Summary: ").append(getSummary())
-		.append(", ").append("Children: ").append(children);
+		.append("Summary: ").append(getSummary()).append(", ")
+		.append("Components: ").append(getComponents()).append(",")
+		.append("Children: ").append(children);
 		return sb.toString();
 	}
 }
