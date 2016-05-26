@@ -7,6 +7,7 @@ public class Issue {
 	private String id;
 	private String key;
 	private String summary;
+	private String testType;
 	private List<Issue> children;
 
 	public String getId() {
@@ -51,10 +52,22 @@ public class Issue {
 		children.add(childIssue);
 	}
 	
+	public String getTestType() {
+		return testType;
+	}
+
+	public void setTestType(String testType) {
+		this.testType = testType;
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("ID: ").append(getId()).append(", ").append("Key: ").append(getKey()).append(", ").append("Summary: ").append(getSummary()).append(", ").append("Children: ").append(children);
+		sb.append("ID: ").append(getId()).append(", ")
+		.append("Key: ").append(getKey()).append(", ")
+		.append("Test Type: ").append(getTestType()).append(", ")
+		.append("Summary: ").append(getSummary())
+		.append(", ").append("Children: ").append(children);
 		return sb.toString();
 	}
 }
