@@ -1,0 +1,26 @@
+{
+     "name": "AppD Zephyr Plugin",
+     "description": "AppDynamics Zephyr plugin",
+     "key": "appdynamics-zephyr",
+     "baseUrl": "TBD",
+     "vendor": {
+         "name": "AppDynamics, Inc.",
+         "url": "http://www.appdynamics.com"
+     },
+     "authentication": {
+         "type": "none"
+     },
+     "apiVersion": 1,
+     "modules": {
+         "generalPages": [
+             {
+                 "url": "/zephyrtool/index.html",
+                 "key": "index",
+                 "location": "system.top.navigation.bar",
+                 "name": {
+                     "value": "AppD Zephyr"
+                 }
+             }
+         ]
+     }
+ }
