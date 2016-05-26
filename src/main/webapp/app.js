@@ -24,7 +24,7 @@
 
 		delete $rootScope.flash;
 
-		var items = getUsecases($http);
+		var items = getUsecases($http,$location);
 
 		if (items != null && items.data != null) {
 			$rootScope.usecases = items.data;
@@ -42,10 +42,10 @@
 		}
 	}
 
-	function getUsecases($http) {
+	function getUsecases($http,$location) {
 		return $http({
 			method : 'GET',
-			url : ZephyrApp.Constants.GETUSECASESURL,
+			url : $location.protocol() + '://' + $location.host()  + ':' + $location.port() + '/zephyrtool/rest/getusecases',
 		})
 				.then(
 						handleSuccess,

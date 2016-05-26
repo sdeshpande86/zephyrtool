@@ -32,10 +32,10 @@ var ZephyrApp;
 
 							Constants.GETUSECASESURL = createConstant(
 									"GETUSECASESURL",
-									 messageResource.get('hostname', 'config') + '/zephyrtool/rest/getusecases');
+									  '/zephyrtool/rest/getusecases');
 							Constants.GETFEATURESURL = createConstant(
 									"GETFEATURESURL",
-									messageResource.get('hostname', 'config') + '/zephyrtool/rest/getfeatures');
+									 '/zephyrtool/rest/getfeatures');
 							
 						});
 

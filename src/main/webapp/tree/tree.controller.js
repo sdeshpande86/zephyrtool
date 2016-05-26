@@ -4,12 +4,12 @@
 	angular.module('app').controller('TreeController', TreeController)
 			.directive('tree', tree);
 
-	TreeController.$inject = ['$http', '$rootScope', 'RecursionHelper' ];
-	function TreeController($http,$rootScope, RecursionHelper) {
+	TreeController.$inject = ['$http','$location', '$rootScope', 'RecursionHelper' ];
+	function TreeController($http,$location,$rootScope, RecursionHelper) {
 		console.log($rootScope.selectedUseCase);
 		var tc = this;
 		if ($rootScope.selectedUseCase != undefined){
-			var items = getUseCaseByFeature($http,$rootScope.selectedUseCase);
+			var items = getUseCaseByFeature($http,$location,$rootScope.selectedUseCase);
 		}
 		if ($rootScope.selectedUseCase != undefined
 				&& $rootScope.selectedUseCase == "Technical Debt") {
@@ -97,10 +97,10 @@
 		};
 	};
 	
-	function getUseCaseByFeature($http,usecasename){
+	function getUseCaseByFeature($http,$location,usecasename){
 		return $http({
 			method : 'GET',
-			url : ZephyrApp.Constants.GETFEATURESURL + '?usecase=' + usecasename,
+			url : $location.protocol() + '://' + $location.host()  + ':' + $location.port() + '/zephyrtool/rest/getfeatures' + '?usecase=' + usecasename,
 		})
 				.then(
 						handleSuccess,
