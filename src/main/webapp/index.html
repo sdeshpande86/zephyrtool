@@ -16,6 +16,8 @@
 <script src="js/angular/angular-cookies.min.js"></script>
 <script src="js/mresources/messageResource.min.js"></script>
 <script src="app.js"></script>
+<script src="tree/tree.controller.js"></script>
+
 </head>
 
 <body>
@@ -40,20 +42,20 @@
 </nav>
 <br />
 <br />
+<br />
 <div
 	ng-class="{ 'alert': flash, 'alert-success': flash.type , 'alert-danger': !flash.type }"
 	ng-if="flash" ng-bind="flash.message"></div>
-<div ng-view></div>
 <br />
-<br />
+
 <div class="row">
-	<div class="col-sm-2"></div>
+	<div class="col-sm-1"></div>
 	<div class="col-sm-3">
 
 		<h4>Test Type:</h4>
-			<select class="form-control input-sm" ng-model="selectedUseCase"
-				ng-options="x for x in $root.usecases">
-			</select>
+		<select class="form-control input-sm" ng-model="selectedUseCase"
+			ng-options="x for x in $root.usecases">
+		</select>
 	</div>
 	<div class="col-sm-3">
 
@@ -69,5 +71,17 @@
 			ng-options="x for x in $root.usecases">
 		</select>
 	</div>
+	<div class="col-sm-2">
+		<h4 style="visibility: hidden">hidedata</h4>
+		<button type="button" ng-click="$root.navigatetotreeview('tree')"
+			class="btn btn-primary">Search</button>
+
+	</div>
 </div>
+<br />
+<br />
+<div ng-view></div>
+<br />
+
+
 </html>
