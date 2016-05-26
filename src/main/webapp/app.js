@@ -23,17 +23,7 @@
 	function run($rootScope, $route, $location, $cookieStore, $http) {
 
 		delete $rootScope.flash;
-
-		var items = getUsecases($http,$location);
-
-		if (items != null && items.data != null) {
-			$rootScope.usecases = items.data;
-		} else {
-			$rootScope.flash = {
-				message : "Failed to get usecases",
-				type : true
-			};
-		}
+		getUsecases($rootScope,$http,$location);
 
 		$rootScope.update = function() {
 			console.log($rootScope.selectedUseCase);
@@ -42,29 +32,20 @@
 		}
 	}
 
-	function getUsecases($http,$location) {
-		return $http({
-			method : 'GET',
-			url : $location.protocol() + '://' + $location.host()  + ':' + $location.port() + '/zephyrtool/rest/getusecases',
-		})
-				.then(
-						handleSuccess,
-						handleError('Error while getting usecases. Please try again later.'));
-
-		// private functions
-		function handleSuccess(data) {
-
-			return data;
-		}
-
-		function handleError(error) {
-			return function() {
-				return {
-					success : false,
-					message : error
-				};
-			};
-		}
+	function getUsecases($rootScope,$http,$location) {
+		console.log($location.protocol() + '://' + $location.host()  + ':' + $location.port() + '/zephyrtool/rest/getusecases');
+		$http({
+		       method : "GET",
+		       url : $location.protocol() + '://' + $location.host()  + ':' + $location.port() + '/zephyrtool/rest/getusecases'
+		   }).then(function mySucces(response) {
+		       console.log(response.data);
+		       $rootScope.usecases = response.data;
+		   }, function myError(response) {
+			   $rootScope.flash = {
+						message : "Failed to get usecases with a status code" +  response.statusText,
+						type : true
+					};
+		   });
 
 	}
 

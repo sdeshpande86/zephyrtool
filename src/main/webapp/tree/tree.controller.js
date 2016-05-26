@@ -9,9 +9,20 @@
 		console.log($rootScope.selectedUseCase);
 		var tc = this;
 		if ($rootScope.selectedUseCase != undefined){
-			var items = getUseCaseByFeature($http,$location,$rootScope.selectedUseCase);
+			$http({
+			       method : "GET",
+					url : $location.protocol() + '://' + $location.host()  + ':' + $location.port() + '/zephyrtool/rest/getfeatures' + '?usecase=' + $rootScope.selectedUseCase,
+			   }).then(function mySucces(response) {
+			       console.log(response.data);
+			       tc.treeFamily = response.data;
+			   }, function myError(response) {
+				   $rootScope.flash = {
+							message : "Failed to get features with a status code" +  response.statusText,
+							type : true
+						};
+			   });
 		}
-		if ($rootScope.selectedUseCase != undefined
+		/*if ($rootScope.selectedUseCase != undefined
 				&& $rootScope.selectedUseCase == "Technical Debt") {
 			tc.treeFamily = {
 				"id" : "496544",
@@ -75,7 +86,7 @@
 					} ]
 				} ]
 			};
-		}
+		}*/
 
 	};
 
@@ -97,28 +108,6 @@
 		};
 	};
 	
-	function getUseCaseByFeature($http,$location,usecasename){
-		return $http({
-			method : 'GET',
-			url : $location.protocol() + '://' + $location.host()  + ':' + $location.port() + '/zephyrtool/rest/getfeatures' + '?usecase=' + usecasename,
-		})
-				.then(
-						handleSuccess,
-						handleError('Error while getting usecases. Please try again later.'));
-
-		// private functions
-		function handleSuccess(data) {
-			return data;
-		}
-
-		function handleError(error) {
-			return function() {
-				return {
-					success : false,
-					message : error
-				};
-			};
-		}
-	}
+	
 
 })();
