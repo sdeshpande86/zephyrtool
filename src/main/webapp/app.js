@@ -32,8 +32,17 @@
 			$location.path('/tree');
 		}
 		
-		$rootScope.filer = function() {
+		$rootScope.filter = function() {
 			$rootScope.isfilter = true;
+			$route.reload()
+			$location.path('/tree');
+		}
+		
+		$rootScope.clearFilter = function() {
+			$rootScope.selectedFunctionality = null;
+			$rootScope.selectedComponent = null;
+
+			$rootScope.isfilter = false;
 			$route.reload()
 			$location.path('/tree');
 		}

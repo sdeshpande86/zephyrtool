@@ -41,39 +41,64 @@
 											return false;
 										else {
 											var keep = false;
-											if (node.testType
-													&& node.testType == $rootScope.selectedFunctionality) {
-												keep = true;
-												console.log(node.summary, keep);
+											var testTypeData = false;
+											var testTypeUndefined = false;
+											var componentsData = false;
+											var componentsUndefined = false;
+											if ($rootScope.selectedFunctionality) {
+												if (node.testType
+														&& node.testType == $rootScope.selectedFunctionality) {
+													testTypeData = true;
+												}
+												if (!node.testType) {
+													testTypeUndefined = true;
+												}
 											}
-											if(!node.testType) {
-												keep = true;											
-												console.log(node.summary, keep);
-											}
-											if(!node.components) {
-												keep = true;
-												console.log(node.summary, keep);
-											} else {
-												for (var i in node.components) {
-													if(node.components[i] == $rootScope.selectedComponent) {
-														keep = true;
+											if ($rootScope.selectedComponent) {
+												if (!node.components) {
+													componentsUndefined = true;
+												}
+												if (node.components) {
+													for ( var i in node.components) {
+														if (node.components[i] == $rootScope.selectedComponent) {
+															componentsData = true;
+														}
 													}
 												}
-												console.log(node.summary, keep);
+											}
+
+											if ($rootScope.selectedFunctionality
+													&& $rootScope.selectedComponent) {
+												keep = testTypeData
+														&& componentsData;
+												keep = testTypeData
+														&& componentsUndefined;
+												keep = testTypeUndefined
+														&& componentsData;
 											}
 											
-											console.log(node.summary, keep);
+											if ($rootScope.selectedFunctionality){
+												keep = testTypeData || testTypeUndefined;
+											}
 											
+											if ($rootScope.selectedComponent){
+												keep = componentsData || componentsUndefined;
+											}
+
+											console.log(node.summary, keep);
+
 											if (node.children) {
 												var newChildren = [];
 												for ( var i in node.children) {
-													if(navigateTree(node.children[i]))
-														newChildren.push(node.children[i]);
+													if (navigateTree(node.children[i]))
+														newChildren
+																.push(node.children[i]);
 												}
 												node.children = newChildren;
 											}
-											
-											if(keep || (node.children && node.children.length > 0))
+
+											if (keep
+													|| (node.children && node.children.length > 0))
 												return true;
 										}
 									}

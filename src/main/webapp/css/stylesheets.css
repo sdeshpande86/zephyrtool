@@ -2,3 +2,23 @@
 	width: auto !important;
 	display: inline-block;
 }
+
+.span12 {
+	background-color: #b4b4b4;
+}
+
+.panel-primary {
+	border-color: #999 !important;
+}
+
+.panel-primary>.panel-heading {
+	color: #333 !important;
+	background-color: #ccc !important;
+	border-color: #999 !important;
+}
+
+.btn-outline {
+	color: #FFF !important;
+	background-color: #777 !important;
+	border-color: #999 !important;
+}
