@@ -21,9 +21,6 @@
 					})
 					.then(
 							function mySucces(response) {
-								console.log(response.data);
-								console.log($rootScope.isfilter);
-
 								var treeData = {
 									"id" : "1",
 									"key" : "true",
@@ -71,21 +68,11 @@
 													&& $rootScope.selectedComponent) {
 												keep = testTypeData
 														&& componentsData;
-												keep = testTypeData
-														&& componentsUndefined;
-												keep = testTypeUndefined
-														&& componentsData;
-											}
-											
-											if ($rootScope.selectedFunctionality){
+											}else if ($rootScope.selectedFunctionality){
 												keep = testTypeData || testTypeUndefined;
-											}
-											
-											if ($rootScope.selectedComponent){
+											}else if ($rootScope.selectedComponent){
 												keep = componentsData || componentsUndefined;
 											}
-
-											console.log(node.summary, keep);
 
 											if (node.children) {
 												var newChildren = [];
