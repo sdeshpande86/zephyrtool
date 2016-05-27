@@ -24,21 +24,26 @@
 
 		delete $rootScope.flash;
 		getUsecases($rootScope,$http,$location);
-
+		$rootScope.functionalities = ['functionality','scalability','performance','debuggability','limits','upgradability','backward compatibility','security','ui','negative case'];
+		$rootScope.components = ['AllAgents','apm-core','apm-db','apm-dotnet','apm-java','e2e','eum','platform-services-dashboards','ui-platform'];
 		$rootScope.update = function() {
-			console.log($rootScope.selectedUseCase);
+			$rootScope.isfilter = false;
+			$route.reload()
+			$location.path('/tree');
+		}
+		
+		$rootScope.filer = function() {
+			$rootScope.isfilter = true;
 			$route.reload()
 			$location.path('/tree');
 		}
 	}
 
 	function getUsecases($rootScope,$http,$location) {
-		console.log($location.protocol() + '://' + $location.host()  + ':' + $location.port() + '/zephyrtool/rest/getusecases');
 		$http({
 		       method : "GET",
 		       url : $location.protocol() + '://' + $location.host()  + ':' + $location.port() + '/zephyrtool/rest/getusecases'
 		   }).then(function mySucces(response) {
-		       console.log(response.data);
 		       $rootScope.usecases = response.data;
 		   }, function myError(response) {
 			   $rootScope.flash = {

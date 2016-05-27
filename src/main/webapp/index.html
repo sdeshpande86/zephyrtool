@@ -83,20 +83,6 @@
 	<div class="col-sm-1">
 		<h4>Use Case:</h4>
 	</div>
-	<!--  <div class="col-sm-3">
-
-		<h4>Test Type:</h4>
-		<select class="form-control input-sm" ng-model="$root.selectedUseCase"
-			ng-options="x for x in $root.usecases">
-		</select>
-	</div>
-	<div class="col-sm-3">
-
-		<h4>Components:</h4>
-		<select class="form-control input-sm" ng-model="$root.selectedUseCase"
-			ng-options="x for x in $root.usecases">
-		</select>
-	</div>-->
 	<div class="col-sm-5">
 
 
@@ -104,7 +90,29 @@
 			ng-options="x for x in usecases" ng-change="$root.update()">
 		</select>
 	</div>
-	
+</div>
+<br/>
+<div class="row">
+	<div class="col-sm-3"></div>
+	<div class="col-sm-1">
+		<h4>Test Type:</h4>
+	</div>
+	<div class="col-sm-2">
+		<select class="form-control input-sm" ng-model="selectedFunctionality"
+			ng-options="x for x in functionalities">
+		</select>
+	</div>
+	<div class="col-sm-1">
+		<h4>Components:</h4>
+	</div>
+	<div class="col-sm-2">
+		<select class="form-control input-sm" ng-model="selectedComponent"
+			ng-options="x for x in components">
+		</select>
+	</div>
+	<div class="col-sm-1"> 
+	<button type="button" class="btn btn-primary" ng-click="$root.filer()">Filter</button>
+	</div>
 </div>
 <br />
 <div class="row">
