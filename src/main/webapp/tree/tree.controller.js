@@ -7,6 +7,8 @@
 	TreeController.$inject = ['$http','$location', '$rootScope', 'RecursionHelper' ];
 	function TreeController($http,$location,$rootScope, RecursionHelper) {
 		console.log($rootScope.selectedUseCase);
+		delete $rootScope.flash;
+
 		var tc = this;
 		if ($rootScope.selectedUseCase != undefined){
 			$http({
@@ -14,7 +16,15 @@
 					url : $location.protocol() + '://' + $location.host()  + ':' + $location.port() + '/zephyrtool/rest/getfeatures' + '?usecase=' + $rootScope.selectedUseCase,
 			   }).then(function mySucces(response) {
 			       console.log(response.data);
-			       tc.treeFamily = response.data;
+			       var treeData = {
+			    		   "id": "1",
+			    		   "key": "true",
+			    		   "summary" : "parent",
+			    		   "children" : response.data
+			       };
+			       console.log(treeData);
+			       
+			       tc.treeFamily = treeData;
 			   }, function myError(response) {
 				   $rootScope.flash = {
 							message : "Failed to get features with a status code" +  response.statusText,
@@ -22,71 +32,6 @@
 						};
 			   });
 		}
-		/*if ($rootScope.selectedUseCase != undefined
-				&& $rootScope.selectedUseCase == "Technical Debt") {
-			tc.treeFamily = {
-				"id" : "496544",
-				"key" : "ZEP-55",
-				"summary" : "Test Feature",
-				"children" : []
-			};
-		}
-
-		if ($rootScope.selectedUseCase != undefined
-				&& $rootScope.selectedUseCase == "APM Functional") {
-
-			tc.treeFamily = {
-				"id" : "494858",
-				"key" : "ZEP-43",
-				"summary" : "Business Transaction OOTB Discovery",
-				"children" : [ {
-					"id" : "494859",
-					"key" : "ZEP-44",
-					"summary" : "Java BT OOTB ",
-					"children" : [ {
-						"id" : "494861",
-						"key" : "ZEP-45",
-						"summary" : "Servlet OOTB",
-						"children" : [{
-			                  "id": "494903",
-			                  "key": "ZEP-52",
-			                  "summary": "new test",
-			                  "children": []
-			                }]
-					}, {
-						"id" : "494863",
-						"key" : "ZEP-46",
-						"summary" : "Struts OOTB",
-						"children" : []
-					}, {
-						"id" : "494864",
-						"key" : "ZEP-47",
-						"summary" : "Web Service OOTB",
-						"children" : []
-					}, {
-						"id" : "494865",
-						"key" : "ZEP-48",
-						"summary" : "Spring OOTB",
-						"children" : []
-					}, {
-						"id" : "494866",
-						"key" : "ZEP-49",
-						"summary" : "EJB OOTB",
-						"children" : []
-					}, {
-						"id" : "494867",
-						"key" : "ZEP-50",
-						"summary" : "JMS OOTB",
-						"children" : []
-					}, {
-						"id" : "494868",
-						"key" : "ZEP-51",
-						"summary" : "Binary Remoting OOTB",
-						"children" : []
-					} ]
-				} ]
-			};
-		}*/
 
 	};
 
@@ -97,7 +42,7 @@
 			scope : {
 				family : '='
 			},
-			template : '<p>{{ family.summary }}</p>' + '<ul>'
+			template : '<p style="{{ family.summary === \'parent\' ? \'display:none\' : \'display:block\' }}">{{ family.summary }}</p>' + '<ul>'
 					+ '<li ng-repeat="child in family.children">'
 					+ '<tree family="child"></tree>' + '</li>' + '</ul>',
 			compile : function(element) {
@@ -108,6 +53,8 @@
 		};
 	};
 	
-	
+	function checkSomething(){
+		console.log(1);
+	}
 
 })();
