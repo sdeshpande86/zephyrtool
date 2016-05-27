@@ -20,7 +20,12 @@ public class Worker implements Runnable {
 	@Override
 	public void run() {
 		System.out.println("Processing issue " + issue.getKey());
-		String output = App.sendRequest(urlPrefix + issue.getKey());
+		String output = null;
+		try {
+			output = App.sendRequest("/rest/api/2/issue/" + issue.getKey());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		JsonObject issueJson = App.parser.parse(output).getAsJsonObject();
 		JsonObject fields = issueJson.get("fields").getAsJsonObject();
 		if (fields.has("customfield_16020")) {

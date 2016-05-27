@@ -2,10 +2,13 @@ package com.appdynamics.tool.app;
 
 import static spark.Spark.get;
 
-public class Service {
-	public static void main(String[] args) throws InterruptedException {
-		App.initialize();
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
+public class Service {
+	public static void main(String[] args) throws InterruptedException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+		App.initialize();
 		get("/zephyrtool/getfeatures", (request, response) -> {
 			String usecase = request.queryParams("usecase");
 			if (usecase != null && !usecase.isEmpty()) {

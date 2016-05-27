@@ -1,19 +1,11 @@
 package com.appdynamics.tool.app;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-
-public class Initializer implements ServletContextListener {
+public class Initializer implements Runnable {
 	@Override
-	public void contextDestroyed(ServletContextEvent arg0) {
-		App.usecaseFeaturesMap.clear();
-	}
-
-	@Override
-	public void contextInitialized(ServletContextEvent arg0) {
+	public void run() {
 		try {
 			App.initialize();
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
