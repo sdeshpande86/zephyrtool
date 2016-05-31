@@ -6,7 +6,7 @@ public class Creds {
 	public static String unEncodedAuthString;
 	public static String authorizationString;
 	static {
-		unEncodedAuthString = "swetha.ravichandran:<dummy>";
+		unEncodedAuthString = "<jira username>:<jira password>";
         authorizationString = "Basic " + new String(Base64.encode(unEncodedAuthString.getBytes()));
 	}
 }
