@@ -23,15 +23,23 @@ public class Worker implements Runnable {
 		String output = App.sendRequest(urlPrefix + issue.getKey());
 		JsonObject issueJson = App.parser.parse(output).getAsJsonObject();
 		JsonObject fields = issueJson.get("fields").getAsJsonObject();
-		if (fields.has("customfield_16020")) {
-			issue.setTestType(fields.get("customfield_16020").getAsJsonObject().get("value").getAsString());
+		
+		issue.setIssueType(fields.get("issuetype").getAsJsonObject().get("name").getAsString());
+		
+		// Set test type only if issue type is Test
+		if (issue.getIssueType().equalsIgnoreCase("Test")) {
+			if (fields.has("customfield_16020")) {
+				issue.setTestType(fields.get("customfield_16020").getAsJsonObject().get("value").getAsString());
+			}
 		}
+		
 		if (fields.has("components")) {
 			JsonArray componentsArray = fields.get("components").getAsJsonArray();
 			for (int c = 0; c < componentsArray.size(); c++) {
 				issue.addComponent(componentsArray.get(c).getAsJsonObject().get("name").getAsString());
 			}
 		}
+		
 		JsonArray issueLinks = fields.get("issuelinks").getAsJsonArray();
 		for (int j = 0; j < issueLinks.size(); j++) {
 			Issue childIssue = new Issue();

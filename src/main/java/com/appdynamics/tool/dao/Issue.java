@@ -7,10 +7,19 @@ public class Issue {
 	private String id;
 	private String key;
 	private String summary;
+	private String issueType;
 	private String testType;
 	private List<String> components;
 	private List<Issue> children;
 
+	public String getIssueType() {
+		return issueType;
+	}
+
+	public void setIssueType(String issueType) {
+		this.issueType = issueType;
+	}
+	
 	public String getId() {
 		return id;
 	}
@@ -80,6 +89,7 @@ public class Issue {
 		StringBuilder sb = new StringBuilder();
 		sb.append("ID: ").append(getId()).append(", ")
 		.append("Key: ").append(getKey()).append(", ")
+		.append("Issue Type: ").append(getIssueType()).append(",")
 		.append("Test Type: ").append(getTestType()).append(", ")
 		.append("Summary: ").append(getSummary()).append(", ")
 		.append("Components: ").append(getComponents()).append(",")
