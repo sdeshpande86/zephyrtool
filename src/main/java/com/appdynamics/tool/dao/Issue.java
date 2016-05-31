@@ -6,19 +6,12 @@ import java.util.List;
 public class Issue {
 	private String id;
 	private String key;
-	private String summary;
 	private String issueType;
 	private String testType;
+	private String summary;
 	private List<String> components;
 	private List<Issue> children;
-
-	public String getIssueType() {
-		return issueType;
-	}
-
-	public void setIssueType(String issueType) {
-		this.issueType = issueType;
-	}
+	private int testCount;
 	
 	public String getId() {
 		return id;
@@ -36,6 +29,22 @@ public class Issue {
 		this.key = key;
 	}
 
+	public String getIssueType() {
+		return issueType;
+	}
+
+	public void setIssueType(String issueType) {
+		this.issueType = issueType;
+	}
+	
+	public String getTestType() {
+		return testType;
+	}
+
+	public void setTestType(String testType) {
+		this.testType = testType;
+	}
+	
 	public String getSummary() {
 		return summary;
 	}
@@ -44,6 +53,20 @@ public class Issue {
 		this.summary = summary;
 	}
 
+	public List<String> getComponents() {
+		if (components == null) {
+			components = new ArrayList<String>();
+		}
+		return components;
+	}
+
+	public void addComponent(String component) {
+		if (components == null) {
+			components = new ArrayList<String>();
+		}
+		this.components.add(component);
+	}
+	
 	public List<Issue> getChildren() {
 		if (children == null) {
 			children = new ArrayList<Issue>();
@@ -62,26 +85,12 @@ public class Issue {
 		children.add(childIssue);
 	}
 	
-	public String getTestType() {
-		return testType;
+	public int getTestCount() {
+		return testCount;
 	}
 
-	public void setTestType(String testType) {
-		this.testType = testType;
-	}
-	
-	public List<String> getComponents() {
-		if (components == null) {
-			components = new ArrayList<String>();
-		}
-		return components;
-	}
-
-	public void addComponent(String component) {
-		if (components == null) {
-			components = new ArrayList<String>();
-		}
-		this.components.add(component);
+	public void setTestCount(int testCount) {
+		this.testCount = testCount;
 	}
 	
 	@Override
@@ -93,7 +102,8 @@ public class Issue {
 		.append("Test Type: ").append(getTestType()).append(", ")
 		.append("Summary: ").append(getSummary()).append(", ")
 		.append("Components: ").append(getComponents()).append(",")
-		.append("Children: ").append(children);
+		.append("Children: ").append(children).append(",")
+		.append("Test Count: ").append(getTestCount());
 		return sb.toString();
 	}
 }

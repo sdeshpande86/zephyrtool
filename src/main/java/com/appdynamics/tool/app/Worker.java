@@ -63,6 +63,17 @@ public class Worker implements Runnable {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		
+		// Find the number of tests under this issue
+		int testCount = 0;
+		for (Issue childIssue : issue.getChildren()) {
+			if (childIssue.getIssueType().equalsIgnoreCase("Test")) {
+				testCount++;
+			} else {
+				testCount += childIssue.getTestCount();
+			}
+		}
+		issue.setTestCount(testCount);
 	}
 
 }
