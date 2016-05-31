@@ -1,4 +1,4 @@
-package com.appdynamics.tool.app;
+package com.appdynamics.tool.services;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -11,6 +11,10 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -21,18 +25,22 @@ import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 
-public class Test {
-	public static void main(String args[]) {
+import com.appdynamics.tool.app.Creds;
+
+@Path("uploadattachment")
+public class UploadAttachmentService {
+	@GET
+	@Produces("application/json")
+	public String uploadAttachment(@QueryParam("url") String url, @QueryParam("issuekey") String issueKey) {
 		try {
-			String filepath = downloadImage("https://upload.wikimedia.org/wikipedia/commons/7/73/Lion_waiting_in_Namibia.jpg",
-	                new File("").getAbsolutePath());
+			String filepath = downloadImage(url, issueKey, new File("").getAbsolutePath());
 			Client client = ClientBuilder.newBuilder().register(MultiPartFeature.class).build();
-			final FileDataBodyPart filePart = new FileDataBodyPart("file",
-					new File(filepath));
+			final FileDataBodyPart filePart = new FileDataBodyPart("file", new File(filepath));
 			FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
 			final FormDataMultiPart multipart = (FormDataMultiPart) formDataMultiPart.bodyPart(filePart);
 
-			final WebTarget target = client.target("https://singularity.jira.com/rest/api/2/issue/ZEP-94/attachments");
+			final WebTarget target = client
+					.target("https://singularity.jira.com/rest/api/2/issue/" + issueKey + "/attachments");
 			final Response response = target.request().header("X-Atlassian-Token", "no-check")
 					.header("Authorization", Creds.authorizationString)
 					.post(Entity.entity(multipart, multipart.getMediaType()));
@@ -42,24 +50,29 @@ public class Test {
 
 			formDataMultiPart.close();
 			multipart.close();
+			return "Attachment uploaded successfully";
 		} catch (Exception e) {
 			e.printStackTrace();
+			return "Failed to upload attachment";
 		}
 	}
 
-	public static String downloadImage(String sourceUrl, String targetDirectory)
+	private String downloadImage(String sourceUrl, String issueKey, String targetDirectory)
 			throws MalformedURLException, IOException, FileNotFoundException {
-		System.out.println(targetDirectory);
 		URL imageUrl = new URL(sourceUrl);
-		try (InputStream imageReader = new BufferedInputStream(imageUrl.openStream());
-				OutputStream imageWriter = new BufferedOutputStream(
-						new FileOutputStream(targetDirectory + File.separator + "downloadedimage.png"));) {
+		String filepath = targetDirectory + File.separator + issueKey + "_" + getName(sourceUrl);
+		try (InputStream imageReader = new BufferedInputStream(imageUrl.openStream()); OutputStream imageWriter = new BufferedOutputStream(new FileOutputStream(filepath));) {
 			int readByte;
-
 			while ((readByte = imageReader.read()) != -1) {
 				imageWriter.write(readByte);
 			}
 		}
-		return targetDirectory + File.separator + "downloadedimage.png";
+		return filepath;
+	}
+	
+	private String getName(String filename) {
+		final int lastUnixPos = filename.lastIndexOf("/");
+        final int lastWindowsPos = filename.lastIndexOf("\\");
+        return filename.substring(Math.max(lastUnixPos, lastWindowsPos) + 1);
 	}
 }
