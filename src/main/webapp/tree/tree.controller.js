@@ -9,8 +9,7 @@
 	function TreeController($http, $location, $rootScope, RecursionHelper) {
 		delete $rootScope.flash;
 		var tc = this;
-
-		if ($rootScope.selectedUseCase != undefined) {
+		if ($rootScope.selectedUseCase) {
 			$http(
 					{
 						method : "GET",
@@ -25,9 +24,10 @@
 									"id" : "1",
 									"key" : "true",
 									"summary" : "parent",
+									"issueType" : "parent",
+									"components" : [],
 									"children" : response.data
 								};
-
 								if ($rootScope.isfilter) {
 									var stack = [];
 									var testType = "";
@@ -40,40 +40,67 @@
 											var keep = false;
 											var testTypeData = false;
 											var testTypeUndefined = false;
+											var testTypechecked = false;
 											var componentsData = false;
 											var componentsUndefined = false;
-											if ($rootScope.selectedFunctionality) {
-												if (node.testType
-														&& node.testType == $rootScope.selectedFunctionality) {
-													testTypeData = true;
-												}
-												if (!node.testType) {
-													testTypeUndefined = true;
-												}
-											}
-											if ($rootScope.selectedComponent) {
-												if (!node.components) {
-													componentsUndefined = true;
-												}
-												if (node.components) {
-													for ( var i in node.components) {
-														if (node.components[i] == $rootScope.selectedComponent) {
-															componentsData = true;
-														}
-													}
-												}
-											}
+											var componentChecked = false;
+											var testTypeVal = {};
+											var componentVal = {};
 
-											if ($rootScope.selectedFunctionality
-													&& $rootScope.selectedComponent) {
+											angular
+													.forEach(
+															$rootScope.testType.ids,
+															function(value, key) {
+																console
+																		.log(value);
+																if (value) {
+																	testTypechecked = true;
+																	if (node.testType
+																			&& key == node.testType) {
+																		testTypeData = true;
+																	} else if (!node.testType) {
+																		testTypeUndefined = true;
+																	}
+																}
+
+															});
+
+											angular
+													.forEach(
+															$rootScope.component.ids,
+															function(value, key) {
+																if (value) {
+																	componentChecked = true;
+																	for ( var i in node.components) {
+																		if (key == node.components[i])
+																			componentsData = true;
+																	}
+																}
+															});
+
+											console.log(node.summary,
+													node.testType,
+													node.components,
+													testTypechecked,
+													componentChecked,
+													testTypeData,
+													componentsData,
+													testTypeUndefined);
+
+											if (testTypechecked
+													&& componentChecked) {
 												keep = testTypeData
 														&& componentsData;
-											}else if ($rootScope.selectedFunctionality){
-												keep = testTypeData || testTypeUndefined;
-											}else if ($rootScope.selectedComponent){
-												keep = componentsData || componentsUndefined;
+											} else if (testTypechecked) {
+												keep = testTypeData
+														|| testTypeUndefined;
+											} else if (componentChecked) {
+												keep = componentsData
+														|| testTypeUndefined;
+											} else if (!testTypechecked
+													&& !componentChecked) {
+												keep = true;
 											}
-
 											if (node.children) {
 												var newChildren = [];
 												for ( var i in node.children) {
@@ -110,12 +137,20 @@
 	tree.$inject = [ '$rootScope', 'RecursionHelper' ];
 	function tree($rootScope, RecursionHelper) {
 		return {
-			restrict : "E",
+			restrict : "AE",
 			scope : {
 				family : '='
 			},
-			template : '<p style="{{ family.summary == \'parent\' ? \'display:none\' : \'display:block\' }}">{{ family.summary }}</p>'
-					+ '<ul>'
+			template : '<a target="_blank" href="https://singularity.jira.com/issues/?jql=project=\'Zephyr POC\' and Hierarchy ~ \''
+					+ '{{family.summary}}'
+					+ '\'">'
+					+ '<div style="{{ family.summary == \'parent\' ? \'display:none\' : \'display:block\' }}">'
+					+ '<div style="display:inline-block" ng-include="\'images/feature.svg\'" ng-show="{{family.issueType == \'Feature\'}}"></div>'
+					+ '<div style="display:inline-block" ng-include="\'images/testset.svg\'" ng-show="{{family.issueType == \'Test Set\'}}"></div>'
+					+ '<div style="display:inline-block" ng-include="\'images/test.svg\'" ng-show="{{family.issueType == \'Test\'}}"></div>'
+					+ ' {{ family.summary }}</div>'
+					+ '</a>'
+					+ '<ul style="list-style:none">'
 					+ '<li ng-repeat="child in family.children">'
 					+ '<tree family="child"></tree>' + '</li>' + '</ul>',
 			compile : function(element) {
@@ -123,6 +158,7 @@
 				// And return the linking function(s) which it returns
 				return RecursionHelper.compile(element);
 			}
+
 		};
 	}
 	;

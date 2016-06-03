@@ -25,7 +25,7 @@
 
 		delete $rootScope.flash;
 		getUsecases($rootScope, $http, $location);
-		$rootScope.example1data = [ {
+		$rootScope.testTypes = [ {
 			id : "functionality",
 			label : "functionality"
 		}, {
@@ -56,14 +56,48 @@
 			id : "negative case",
 			label : "negative case"
 		} ];
-		$rootScope.selectedModel = [];
-		$rootScope.functionalities = [ 'functionality', 'scalability',
-				'performance', 'debuggability', 'limits', 'upgradability',
-				'backward compatibility', 'security', 'ui', 'negative case' ];
-		$rootScope.components = [ 'AllAgents', 'apm-core', 'apm-db',
-				'apm-dotnet', 'apm-java', 'e2e', 'eum',
-				'platform-services-dashboards', 'ui-platform' ];
+		$rootScope.testType = {
+			ids : {
+				"functionality" : false
+			}
+		};
+
+		$rootScope.components = [ {
+			id : "AllAgents",
+			label : "AllAgents"
+		}, {
+			id : "apm-core",
+			label : "apm-core"
+		}, {
+			id : "apm-db",
+			label : "apm-db"
+		}, {
+			id : "apm-dotnet",
+			label : "apm-dotnet"
+		}, {
+			id : "apm-java",
+			label : "apm-java"
+		}, {
+			id : "e2e",
+			label : "e2e"
+		}, {
+			id : "eum",
+			label : "eum"
+		}, {
+			id : "platform-services-dashboards",
+			label : "platform-services-dashboards"
+		}, {
+			id : "ui-platform",
+			label : "ui-platform"
+		} ];
+
+		$rootScope.component = {
+			ids : {
+				"AllAgents" : false
+			}
+		};
 		$rootScope.update = function() {
+			$rootScope.sidebarHide = true;
 			$rootScope.isfilter = false;
 			$route.reload()
 			$location.path('/tree');
@@ -76,9 +110,17 @@
 		}
 
 		$rootScope.clearFilter = function() {
-			$rootScope.selectedFunctionality = null;
-			$rootScope.selectedComponent = null;
+			$rootScope.testType = {
+				ids : {
+					"functionality" : false
+				}
+			};
 
+			$rootScope.component = {
+				ids : {
+					"AllAgents" : false
+				}
+			};
 			$rootScope.isfilter = false;
 			$route.reload()
 			$location.path('/tree');
@@ -110,32 +152,24 @@
 		return {
 
 			compile : function(element, link) {
-				// Normalize the link parameter
 				if (angular.isFunction(link)) {
 					link = {
 						post : link
 					};
 				}
-
-				// Break the recursion loop by removing the contents
 				var contents = element.contents().remove();
 				var compiledContents;
 				return {
 					pre : (link && link.pre) ? link.pre : null,
-					/**
-					 * Compiles and re-adds the contents
-					 */
+
 					post : function(scope, element) {
-						// Compile the contents
 						if (!compiledContents) {
 							compiledContents = $compile(contents);
 						}
-						// Re-add the compiled contents to the element
 						compiledContents(scope, function(clone) {
 							element.append(clone);
 						});
 
-						// Call the post-linking function, if any
 						if (link && link.post) {
 							link.post.apply(null, arguments);
 						}
@@ -146,12 +180,13 @@
 	}
 
 	ngDropdownMultiselect.inject = [ '$filter', '$document', '$compile',
-			'$parse' ];
-	function ngDropdownMultiselect($filter, $document, $compile, $parse) {
+			'$parse', '$route', '$location' ];
+	function ngDropdownMultiselect($filter, $document, $compile, $parse,
+			$route, $location) {
 		return {
 			restrict : 'AE',
 			scope : {
-				selectedModel : '=',
+				model : '=',
 				options : '=',
 				extraSettings : '=',
 				events : '=',
@@ -164,8 +199,8 @@
 				var groups = attrs.groupBy ? true : false;
 
 				var template = '<div class="multiselect-parent btn-group dropdown-multiselect">';
-				template += '<button type="button" class="dropdown-toggle" ng-class="settings.buttonClasses" ng-click="toggleDropdown()">{{getButtonText()}}&nbsp;<span class="caret"></span></button>';
-				template += '<ul class="dropdown-menu dropdown-menu-form" ng-style="{display: open ? \'block\' : \'none\', height : settings.scrollable ? settings.scrollableHeight : \'auto\' }" style="overflow: scroll" >';
+				template += '<button type="button" class="dropdown-toggle" ng-class="settings.buttonClasses" style="overflow:hidden; white-space:nowrap; text-overflow:ellipsis;text-align:left;" ng-click="toggleDropdown()">{{getButtonText()}}&nbsp;<span class="caret"></span></button>';
+				template += '<ul class="dropdown-menu dropdown-menu-form" ng-style="{display: open ? \'block\' : \'none\', height : settings.scrollable ? settings.scrollableHeight : \'auto\' }">';
 				template += '<li role="presentation" ng-repeat="option in options | filter: searchFilter">';
 				template += '<a role="menuitem" tabindex="-1" ng-click="setSelectedItem(getPropertyForObject(option,settings.idProp))">';
 				template += '<span data-ng-class="{\'glyphicon glyphicon-ok\': isChecked(getPropertyForObject(option,settings.idProp))}"></span> {{getPropertyForObject(option, settings.displayProp)}}</a>';
@@ -213,7 +248,7 @@
 
 				$scope.texts = {
 					selectionOf : '/',
-					buttonDefaultText : 'Select',
+					buttonDefaultText : 'Select Value(s)',
 					dynamicButtonTextSuffix : 'checked'
 				};
 
@@ -253,9 +288,9 @@
 				}
 
 				if ($scope.singleSelection) {
-					if (angular.isArray($scope.$root.selectedModel)
-							&& $scope.$root.selectedModel.length === 0) {
-						clearObject($scope.$root.selectedModel);
+					if (angular.isArray($scope.model)
+							&& $scope.model.length === 0) {
+						clearObject($scope.model);
 					}
 				}
 
@@ -287,14 +322,13 @@
 				$scope.getButtonText = function() {
 
 					if ($scope.settings.dynamicTitle
-							&& ($scope.$root.selectedModel.length > 0 || (angular
-									.isObject($scope.$root.selectedModel) && _
-									.keys($scope.$root.selectedModel).length > 0))) {
+							&& ($scope.model.length > 0 || (angular
+									.isObject($scope.model) && _
+									.keys($scope.model).length > 0))) {
 
 						var totalSelected = '';
 
-						angular.forEach($scope.$root.selectedModel, function(
-								value, key) {
+						angular.forEach($scope.model, function(value, key) {
 							totalSelected += value[$scope.settings.idProp]
 									+ ', ';
 						});
@@ -325,8 +359,8 @@
 					}
 
 					if ($scope.singleSelection) {
-						clearObject($scope.$root.selectedModel);
-						angular.extend($scope.$root.selectedModel, finalObj);
+						clearObject($scope.model);
+						angular.extend($scope.model, finalObj);
 						$scope.externalEvents.onItemSelect(finalObj);
 						if ($scope.settings.closeOnSelect)
 							$scope.open = false;
@@ -336,33 +370,34 @@
 
 					dontRemove = dontRemove || false;
 
-					var exists = _.findIndex($scope.$root.selectedModel,
-							findObj) !== -1;
+					var exists = _.findIndex($scope.model, findObj) !== -1;
 
 					if (!dontRemove && exists) {
-						$scope.$root.selectedModel.splice(_.findIndex(
-								$scope.$root.selectedModel, findObj), 1);
+						$scope.model.splice(_.findIndex($scope.model, findObj),
+								1);
 						$scope.externalEvents.onItemDeselect(findObj);
 					} else if (!exists
-							&& ($scope.settings.selectionLimit === 0 || $scope.$root.selectedModel.length < $scope.settings.selectionLimit)) {
-						$scope.$root.selectedModel.push(finalObj);
+							&& ($scope.settings.selectionLimit === 0 || $scope.model.length < $scope.settings.selectionLimit)) {
+						$scope.model.push(finalObj);
 						$scope.externalEvents.onItemSelect(finalObj);
 					}
 					if ($scope.settings.closeOnSelect)
 						$scope.open = false;
-					console.log($scope.$root.selectedModel);
+
+					$scope.$root.isfilter = true;
+					$route.reload()
+					$location.path('/tree');
 				};
 
 				$scope.isChecked = function(id) {
 					if ($scope.singleSelection) {
-						return $scope.$root.selectedModel !== null
+						return $scope.model !== null
 								&& angular
-										.isDefined($scope.$root.selectedModel[$scope.settings.idProp])
-								&& $scope.$root.selectedModel[$scope.settings.idProp] === getFindObj(id)[$scope.settings.idProp];
+										.isDefined($scope.model[$scope.settings.idProp])
+								&& $scope.model[$scope.settings.idProp] === getFindObj(id)[$scope.settings.idProp];
 					}
 
-					return _.findIndex($scope.$root.selectedModel,
-							getFindObj(id)) !== -1;
+					return _.findIndex($scope.model, getFindObj(id)) !== -1;
 				};
 
 				$scope.externalEvents.onInitDone();

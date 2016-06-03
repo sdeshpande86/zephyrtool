@@ -22,123 +22,112 @@
 <link rel="stylesheet"
 	href="//aui-cdn.atlassian.com/aui-adg/5.9.12/css/aui.min.css"
 	media="all">
+<link href="css/simple-sidebar.css" rel="stylesheet">
+
 </head>
 
-<body>
-	<section id="content" class="ac-content">
+<!-- <body>-->
+<!--<section id="content" class="ac-content">
 		<div class="aui-page-header">
 			<div class="aui-page-header-main">
 				<h1>Hello World</h1>
 			</div>
 		</div>
-	</section>
+	</section>-->
 
-	<script id="connect-loader" data-options="sizeToParent:true;">
-		(function() {
-			var getUrlParam = function(param) {
-				var codedParam = (new RegExp(param + '=([^&]*)'))
-						.exec(window.location.search)[1];
-				return decodeURIComponent(codedParam);
-			};
+<script id="connect-loader" data-options="sizeToParent:true;">
+	(function() {
+		var getUrlParam = function(param) {
+			var codedParam = (new RegExp(param + '=([^&]*)'))
+					.exec(window.location.search)[1];
+			return decodeURIComponent(codedParam);
+		};
 
-			var baseUrl = getUrlParam('xdm_e') + getUrlParam('cp');
-			var options = document.getElementById('connect-loader')
-					.getAttribute('data-options');
+		var baseUrl = getUrlParam('xdm_e') + getUrlParam('cp');
+		var options = document.getElementById('connect-loader').getAttribute(
+				'data-options');
 
-			var script = document.createElement("script");
-			script.src = baseUrl + '/atlassian-connect/all.js';
+		var script = document.createElement("script");
+		script.src = baseUrl + '/atlassian-connect/all.js';
 
-			if (options) {
-				script.setAttribute('data-options', options);
-			}
+		if (options) {
+			script.setAttribute('data-options', options);
+		}
 
-			document.getElementsByTagName("head")[0].appendChild(script);
-		})();
-	</script>
-	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+		document.getElementsByTagName("head")[0].appendChild(script);
+	})();
+	$("#menu-toggle").click(function(e) {
+		e.preventDefault();
+		$("#wrapper").toggleClass("toggled");
+	});
+</script>
+<!--  <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
 	</nav>
-</body>
-<!-- Navigation -->
-<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-	<div class="container">
-		<!-- Brand and toggle get grouped for better mobile display -->
-		<div class="navbar-header">
-			<button type="button" class="navbar-toggle" data-toggle="collapse"
-				data-target="#bs-example-navbar-collapse-1">
-				<span class="sr-only">Toggle navigation</span> <span
-					class="icon-bar"></span> <span class="icon-bar"></span> <span
-					class="icon-bar"></span>
-			</button>
-			<a class="navbar-brand" href="#">ZEPHYR TOOL</a>
-		</div>
-	</div>
-	<!-- /.container -->
-</nav>
-<br />
-<div
-	ng-class="{ 'alert': flash, 'alert-success': flash.type , 'alert-danger': !flash.type }"
-	ng-if="flash" ng-bind="flash.message"></div>
-<br />
+</body>-->
 
-<div class="row">
-	<div class="col-sm-3"></div>
-	<div class="col-sm-1">
-		<h4>Use Case:</h4>
+<div id="wrapper">
+	<!-- Sidebar -->
+	<div id="sidebar-wrapper" class="col-sm-2" ng-show="sidebarHide">
+		<ul class="sidebar-nav">
+			<li class="sidebar-brand">Filters</li>
+			<li>
+				<div style="display: inline-block;">Test Type:</div>
+				<ul style="list-style: none;">
+					<li><span ng-repeat="testTypeData in testTypes"> <label
+							class="checkbox" for="{{testTypeData.id}}"> <input
+								type="checkbox" ng-model="testType.ids[testTypeData.id]"
+								name="group" id="{{testTypeData.id}}" ng-click="$root.filter()" /> {{testTypeData.label}}
+						</label>
+					</span></li>
+				</ul>
+			</li>
+			<li>
+				<div style="display: inline-block;">Components:</div>
+				<ul style="list-style: none;">
+					<li><span ng-repeat="componentData in components"> <label
+							class="checkbox" for="{{componentData.id}}"> <input
+								type="checkbox" ng-model="component.ids[componentData.id]"
+								name="group" id="{{componentData.id}}" ng-click="$root.filter()"/>
+								{{componentData.label}}
+						</label>
+					</span></li>
+				</ul>
+			</li>
+		</ul>
 	</div>
-	<div class="col-sm-5">
-		<select class="form-control input-sm" ng-model="selectedUseCase"
-			ng-options="x for x in usecases" ng-change="$root.update()">
-		</select>
-	</div>
-	<div class="col-sm-3"></div>
-</div>
-<br />
 
-<div class="row">
-	<div class="col-sm-2"></div>
-	<div class="col-sm-8">
-		<div class="panel panel-primary">
-			<div class="panel-heading">
-				<h3 class="panel-title">Filters</h3>
-			</div>
-
-			<div class="panel-body">
+	<!-- /#sidebar-wrapper -->
+	<!-- Page Content -->
+	<div id="page-content-wrapper" class="col-sm-9">
+		<div class="container-fluid">
+			<div class="row">
 				<div class="row">
-					<div class="col-sm-1"></div>
-					<div class="col-sm-1">
-						<h4>TestType:</h4>
+					<div class="col-sm-3"></div>
+					<div  class="col-sm-1">
+						<h4>Use Case:</h4>
 					</div>
-					<div class="col-sm-3">
-					    <div ng-dropdown-multiselect="" options="example1data" selected-model="example1model"></div>
-					
-						<!--  <select class="form-control input-sm"
-							ng-model="selectedFunctionality"
-							ng-options="x for x in functionalities"
-							ng-change="$root.filter()">
-						</select>-->
-					</div>
-					<div class="col-sm-2">
-						<h4>Components:</h4>
-					</div>
-					<div class="col-sm-3">
-						<select class="form-control input-sm" ng-model="selectedComponent"
-							ng-options="x for x in components" ng-change="$root.filter()">
+					<div class="col-sm-5">
+						<select class="form-control input-sm" ng-model="selectedUseCase"
+							ng-options="x for x in usecases" ng-change="$root.update()">
 						</select>
 					</div>
-					<div class="col-sm-1"></div>
-					<div class="col-sm-2">
-						<button type="button" class="btn-outline"
-							ng-click="$root.clearFilter()">Clear Filters</button>
-					</div>
+					<div class="col-sm-3"></div>
 				</div>
+				<br />
+
+				<div
+					ng-class="{ 'alert': flash, 'alert-success': flash.type , 'alert-danger': !flash.type }"
+					ng-if="flash" ng-bind="flash.message"></div>
+				<br />
+				<div class="row">
+					<div class="col-sm-4"></div>
+					<div class="col-sm-5" ng-view></div>
+				</div>
+				<br />
 			</div>
 		</div>
 	</div>
+	<!-- /#Page Content -->
+
 </div>
-<br />
-<div class="row">
-	<div class="col-sm-4"></div>
-	<div class="col-sm-5" ng-view></div>
-</div>
-<br />
 </html>
