@@ -13,8 +13,7 @@
 			$http(
 					{
 						method : "GET",
-						url : $location.protocol() + '://' + $location.host()
-								+ ':' + $location.port()
+						url : $location.protocol() + '://' + $location.host() + ':' + $location.port()
 								+ '/zephyrtool/rest/getfeatures' + '?usecase='
 								+ $rootScope.selectedUseCase,
 					})
@@ -134,8 +133,8 @@
 	}
 	;
 
-	tree.$inject = [ '$rootScope', 'RecursionHelper' ];
-	function tree($rootScope, RecursionHelper) {
+	tree.$inject = [ '$rootScope', 'RecursionHelper','$location' ];
+	function tree($rootScope, RecursionHelper,$location) {
 		return {
 			restrict : "AE",
 			scope : {
@@ -151,8 +150,10 @@
 					+ ' {{ family.summary }}'
 					+ '</a>'
 					+ '<div style="display:inline-block;padding-left:10px" ng-hide="{{family.summary == undefined || family.summary == null}}">'
+					+ '<a target="_blank" href="'+$location.protocol() + '://' + $location.host() + ':' + $location.port() + '/zephyrtool/rest/createissue' + '?usecase=\'{{$root.selectedUseCase}}\'&parentissue=\'{{family.key}}\'">'
+
 					+ '<span class="glyphicon glyphicon-plus" aria-hidden="true">'
-					+ '</span></div>'
+					+ '</span></a></div>'
 					+ '</div>'
 					+ '<ul style="list-style:none">'
 					+ '<li ng-repeat="child in family.children">'
