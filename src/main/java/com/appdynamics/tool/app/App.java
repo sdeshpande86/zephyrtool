@@ -20,6 +20,7 @@ import com.google.gson.JsonParser;
 
 public class App {
 	public static List<String> usecases = new ArrayList<String>();
+	public static Map<String, String> usecaseValueToIdMap = new HashMap<String, String>();
 	public static Map<String, List<Issue>> usecaseFeaturesMap = new HashMap<String, List<Issue>>();
 	public static JsonParser parser = new JsonParser();
 	public static Gson gson = new Gson();
@@ -44,11 +45,14 @@ public class App {
 		JsonObject issueFieldsJson = parser.parse(output).getAsJsonObject().get("fields").getAsJsonObject();
 		JsonArray usecaseValuesJson = issueFieldsJson.get("customfield_10520").getAsJsonObject().get("allowedValues").getAsJsonArray(); 
 		for (int i=0; i<usecaseValuesJson.size(); i++) {
-			usecases.add(usecaseValuesJson.get(i).getAsJsonObject().get("value").getAsString());
+			JsonObject usecaseJson = usecaseValuesJson.get(i).getAsJsonObject();
+			usecaseValueToIdMap.put(usecaseJson.get("value").getAsString(), usecaseJson.get("id").getAsString());
+			usecases.add(usecaseJson.get("value").getAsString());
 		}
 		for (String usecase : usecases) {
 			usecaseFeaturesMap.put(usecase, new ArrayList<Issue>());
 		}
+		System.out.println(usecaseValueToIdMap);
 		System.out.println(usecases);
 	}
 	
