@@ -43,9 +43,12 @@ public class Worker implements Runnable {
 		JsonArray issueLinks = fields.get("issuelinks").getAsJsonArray();
 		for (int j = 0; j < issueLinks.size(); j++) {
 			Issue childIssue = new Issue();
-			if (!issueLinks.get(j).getAsJsonObject().has("inwardIssue")) {
+			
+			// If inward issue is not present or type is not "sets requirements for", continue
+			if (!issueLinks.get(j).getAsJsonObject().has("inwardIssue") || !issueLinks.get(j).getAsJsonObject().get("type").getAsJsonObject().get("outward").getAsString().equalsIgnoreCase("sets requirements for")) {
 				continue;
 			}
+			
 			JsonObject issueLink = issueLinks.get(j).getAsJsonObject().get("inwardIssue").getAsJsonObject();
 			childIssue.setId(issueLink.get("id").getAsString());
 			childIssue.setKey(issueLink.get("key").getAsString());

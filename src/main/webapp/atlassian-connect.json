@@ -1,6 +1,6 @@
 {
-     "name": "AppD Zephyr Plugin",
-     "description": "AppDynamics Zephyr plugin",
+     "name": "AppD Zephyr Test View Addon",
+     "description": "This plugin gives a hierarchial view of all issueType=Test in Zephyr project",
      "key": "appdynamics-zephyr",
      "baseUrl": "TBD",
      "vendor": {
@@ -18,7 +18,7 @@
                  "key": "index",
                  "location": "system.top.navigation.bar",
                  "name": {
-                     "value": "AppD Zephyr"
+                     "value": "Tests View"
                  }
              }
          ]
