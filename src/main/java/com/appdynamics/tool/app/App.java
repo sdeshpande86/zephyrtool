@@ -6,19 +6,35 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+
 import com.appdynamics.tool.dao.Issue;
+import com.appdynamics.tool.jwt.JwtBuilder;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class App {
+	public static String CONTEXT_KEY;
+	public static String CONTEXT_CLIENT_KEY;
+	public static String CONTEXT_PUBLIC_KEY;
+	public static String CONTEXT_SHARED_SECRET;
+	public static String CONTEXT_SERVER_VERSION;
+	public static String CONTEXT_PLUGINS_VERSION;
+	public static String CONTEXT_BASE_URL;
+	public static String CONTEXT_PRODUCT_TYPE;
+	public static String CONTEXT_DESCRIPTION;
+	public static String CONTEXT_EVENT_TYPE;
+	
 	public static List<String> usecases = new ArrayList<String>();
 	public static Map<String, String> usecaseValueToIdMap = new HashMap<String, String>();
 	public static Map<String, List<Issue>> usecaseFeaturesMap = new HashMap<String, List<Issue>>();
@@ -26,12 +42,7 @@ public class App {
 	public static JsonParser parser = new JsonParser();
 	public static Gson gson = new Gson();
 	public static ExecutorService hierarchyExecutorService = Executors.newFixedThreadPool(5);
-
-	public static String sendRequest(String url) {
-		Client client = ClientBuilder.newClient();
-		Response response = client.target(url).request().header("Authorization", Creds.authorizationString).get();
-		return response.readEntity(String.class);
-	}
+	public static ScheduledExecutorService shceduledExecutor = Executors.newScheduledThreadPool(1);
 	
 	public static List<Issue> getFeaturesList() {
 		List<Issue> result = new ArrayList<Issue>();
@@ -42,8 +53,7 @@ public class App {
 	}
 	
 	public static void getUsecases(String sampleIssueKey) {
-		String url = "https://singularity.jira.com/rest/api/2/issue/" + sampleIssueKey + "/editmeta";
-		String output = sendRequest(url);
+		String output = sendRequestNew("/rest/api/2/issue/" + sampleIssueKey + "/editmeta");
 		JsonObject issueFieldsJson = parser.parse(output).getAsJsonObject().get("fields").getAsJsonObject();
 		JsonArray usecaseValuesJson = issueFieldsJson.get("customfield_10520").getAsJsonObject().get("allowedValues").getAsJsonArray(); 
 		for (int i=0; i<usecaseValuesJson.size(); i++) {
@@ -59,8 +69,7 @@ public class App {
 	}
 	
 	public static void initialize() throws InterruptedException {
-		String url = "https://singularity.jira.com/rest/api/2/search?jql=project%20%3D%20ZEP%20AND%20issuetype%20%3D%20Feature";
-		String output = sendRequest(url);
+		String output = sendGETRequest("/rest/api/2/search", "jql=project%20%3D%20ZEP%20AND%20issuetype%20%3D%20Feature");
 		
 		JsonObject json = parser.parse(output).getAsJsonObject();
 		int numberOfIssues = json.get("total").getAsInt();
@@ -91,5 +100,73 @@ public class App {
 		executorService.awaitTermination(1, TimeUnit.HOURS);
 		
 		System.out.println(gson.toJson(usecaseFeaturesMap));
+	}
+	
+	public static String sendRequestNew(String path) {
+		return sendGETRequest(path, "");
+	}
+	
+	public static String sendGETRequest(String path, String additionalParams) {
+		String requestUrl = App.CONTEXT_BASE_URL + path;
+		String canonicalUrl = "GET&" + path + "&" + additionalParams;
+		String key = App.CONTEXT_KEY; // from the add-on descriptor and received during installation handshake
+		String sharedSecret = App.CONTEXT_SHARED_SECRET; // received during installation Handshake
+		String jwtToken = null;
+		try {
+			jwtToken = JwtBuilder.generateJWTToken(requestUrl, canonicalUrl, key, sharedSecret);
+		} catch (Exception e) {
+			System.out.println("Exception while generating JWT token");
+		}
+		String restAPIUrl = null;
+		restAPIUrl = requestUrl + "?jwt=" + jwtToken;
+		if (!additionalParams.isEmpty()) {
+			restAPIUrl = restAPIUrl + "&" + additionalParams;
+		}
+		System.out.println(restAPIUrl);
+		Client client = ClientBuilder.newClient();
+		Response response = client.target(restAPIUrl).request().get();
+		return response.readEntity(String.class);
+	}
+	
+	public static void sendHierarchyUpdatePUTRequest(String path, String additionalParams, Entity<?> entity) {
+		String requestUrl = App.CONTEXT_BASE_URL + path;
+		String canonicalUrl = "PUT&" + path + "&" + additionalParams;
+		String key = App.CONTEXT_KEY; // from the add-on descriptor and received during installation handshake
+		String sharedSecret = App.CONTEXT_SHARED_SECRET; // received during installation Handshake
+		String jwtToken = null;
+		try {
+			jwtToken = JwtBuilder.generateJWTToken(requestUrl, canonicalUrl, key, sharedSecret);
+		} catch (Exception e) {
+			System.out.println("Exception while generating JWT token");
+		}
+		String restAPIUrl = null;
+		restAPIUrl = requestUrl + "?jwt=" + jwtToken;
+		if (!additionalParams.isEmpty()) {
+			restAPIUrl = restAPIUrl + "&" + additionalParams;
+		}
+		System.out.println(restAPIUrl);
+		Client client = ClientBuilder.newClient();
+		client.target(restAPIUrl).request().put(entity);
+	}
+	
+	public static Response sendAttachmentUploadPOSTRequest(String path, String additionalParams, Entity<?> entity) {
+		String requestUrl = App.CONTEXT_BASE_URL + path;
+		String canonicalUrl = "POST&" + path + "&" + additionalParams;
+		String key = App.CONTEXT_KEY; // from the add-on descriptor and received during installation handshake
+		String sharedSecret = App.CONTEXT_SHARED_SECRET; // received during installation Handshake
+		String jwtToken = null;
+		try {
+			jwtToken = JwtBuilder.generateJWTToken(requestUrl, canonicalUrl, key, sharedSecret);
+		} catch (Exception e) {
+			System.out.println("Exception while generating JWT token");
+		}
+		String restAPIUrl = null;
+		restAPIUrl = requestUrl + "?jwt=" + jwtToken;
+		if (!additionalParams.isEmpty()) {
+			restAPIUrl = restAPIUrl + "&" + additionalParams;
+		}
+		System.out.println(restAPIUrl);
+		Client client = ClientBuilder.newBuilder().register(MultiPartFeature.class).build();
+		return client.target(restAPIUrl).request().header("X-Atlassian-Token", "no-check").post(entity);
 	}
 }

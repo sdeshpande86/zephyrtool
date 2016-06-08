@@ -1,12 +1,13 @@
 package com.appdynamics.tool.app;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 
@@ -14,7 +15,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class HierarchyUpdateWorker implements Runnable {
-    private static final String ISSUE_URL = "https://singularity.jira.com/rest/api/2/issue/";
     private Set<String> outwardIssueIds = new LinkedHashSet<String>();
 
     private String issueId;
@@ -52,12 +52,15 @@ public class HierarchyUpdateWorker implements Runnable {
 
         System.out.println(hierarchyString);
 
-        updateHierarchy(issueId, hierarchyString);
+        try {
+        	updateHierarchy(issueId, hierarchyString);
+        } catch (Exception e) {
+        	System.out.println("Exception while updating hierarchy for issue " + issueId);
+        }
     }
 
     private Set<String> getOutwardIssueList(String issueId) {
-        String url = ISSUE_URL + issueId;
-        String output = App.sendRequest(url);
+        String output = App.sendRequestNew("/rest/api/2/issue/" + issueId);
         JsonObject fields = App.parser.parse(output).getAsJsonObject().get("fields").getAsJsonObject();
 
         // Check if this issue has outward issue
@@ -90,8 +93,7 @@ public class HierarchyUpdateWorker implements Runnable {
     }
 
     private boolean hasOutwardIssue(String issueId) {
-        String url = ISSUE_URL + issueId;
-        String output = App.sendRequest(url);
+        String output = App.sendRequestNew("/rest/api/2/issue/" + issueId);
         JsonObject fields = App.parser.parse(output).getAsJsonObject().get("fields").getAsJsonObject();
 
         // Check if this issue has outward issue
@@ -111,14 +113,13 @@ public class HierarchyUpdateWorker implements Runnable {
     }
 
     private String getIssueSummary(String issueId) {
-        String url = ISSUE_URL + issueId;
-        String output = App.sendRequest(url);
+        String output = App.sendRequestNew("/rest/api/2/issue/" + issueId);
         JsonObject fields = App.parser.parse(output).getAsJsonObject().get("fields").getAsJsonObject();
         String summary = fields.get("summary").toString();
         return summary;
     }
 
-    private void updateHierarchy(String issue, String hierarchy) {
+    private void updateHierarchy(String issue, String hierarchy) throws InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         if (issue == null || hierarchy == null || issue.length() <= 0 || hierarchy.length() <= 0) {
             return;
         }
@@ -139,10 +140,8 @@ public class HierarchyUpdateWorker implements Runnable {
         String input = "{ \"fields\": " +
                 "    {\"customfield_16221\": " + "\"" + hierarchy + "\"" + "}" +
                 "}";
-        String urlString = ISSUE_URL + issue;
-        System.out.println("POST URL STRING = " + urlString);
-        Client client = ClientBuilder.newClient();
-        client.target(urlString).request().header("Authorization", Creds.authorizationString)
-                .put(Entity.entity(input, MediaType.APPLICATION_JSON_TYPE));
+        System.out.println("/rest/api/2/issue/" + issue);
+        
+        App.sendHierarchyUpdatePUTRequest("/rest/api/2/issue/" + issue, "", Entity.entity(input, MediaType.APPLICATION_JSON_TYPE));
     }
 }

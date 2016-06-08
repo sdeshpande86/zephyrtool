@@ -8,7 +8,10 @@
          "url": "http://www.appdynamics.com"
      },
      "authentication": {
-         "type": "none"
+         "type": "jwt"
+     },
+     "lifecycle": {
+        "installed": "/zephyrtool/rest/zephyrcallback"
      },
      "apiVersion": 1,
      "modules": {
@@ -22,5 +25,9 @@
                  }
              }
          ]
-     }
+     },
+     "scopes": [
+        "read",
+        "write"
+     ]
  }

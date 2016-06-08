@@ -15,17 +15,13 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 
-import com.appdynamics.tool.app.Creds;
+import com.appdynamics.tool.app.App;
 
 @Path("uploadattachment")
 public class UploadAttachmentService {
@@ -34,16 +30,11 @@ public class UploadAttachmentService {
 	public String uploadAttachment(@QueryParam("url") String url, @QueryParam("issuekey") String issueKey) {
 		try {
 			String filepath = downloadImage(url, issueKey, new File("").getAbsolutePath());
-			Client client = ClientBuilder.newBuilder().register(MultiPartFeature.class).build();
 			final FileDataBodyPart filePart = new FileDataBodyPart("file", new File(filepath));
 			FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
 			final FormDataMultiPart multipart = (FormDataMultiPart) formDataMultiPart.bodyPart(filePart);
 
-			final WebTarget target = client
-					.target("https://singularity.jira.com/rest/api/2/issue/" + issueKey + "/attachments");
-			final Response response = target.request().header("X-Atlassian-Token", "no-check")
-					.header("Authorization", Creds.authorizationString)
-					.post(Entity.entity(multipart, multipart.getMediaType()));
+			final Response response = App.sendAttachmentUploadPOSTRequest("/rest/api/2/issue/" + issueKey + "/attachments", "", Entity.entity(multipart, multipart.getMediaType()));
 
 			// Use response object to verify upload success
 			System.out.println("Attachment upload status: " + response.getStatus());

@@ -9,8 +9,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class Worker implements Runnable {
-	public static String urlPrefix = "https://singularity.jira.com/rest/api/2/issue/";
-	
 	private Issue issue;
 	
 	public Worker(Issue issue) {
@@ -20,7 +18,12 @@ public class Worker implements Runnable {
 	@Override
 	public void run() {
 		System.out.println("Processing issue " + issue.getKey());
-		String output = App.sendRequest(urlPrefix + issue.getKey());
+		String output = null;
+		try {
+			output = App.sendRequestNew("/rest/api/2/issue/" + issue.getKey());
+		} catch (Exception e) {
+			System.out.println("Failed to get issue JSON for issue " + issue.getKey());
+		}
 		JsonObject issueJson = App.parser.parse(output).getAsJsonObject();
 		JsonObject fields = issueJson.get("fields").getAsJsonObject();
 		
