@@ -32,7 +32,7 @@ public class ZephyrCallbackService {
 		App.CONTEXT_EVENT_TYPE = context.get("eventType").getAsString();
 		// Load data from JIRA into memory
 		// Scheduling after 5 seconds since JIRA needs to get 200 status code before it accepts the JWT token
-		App.shceduledExecutor.schedule(new Initializer(), 5, TimeUnit.SECONDS);
+		App.scheduledExecutor.schedule(new Initializer(), 5, TimeUnit.SECONDS);
 		return Response.status(200).build();
  	}
 }

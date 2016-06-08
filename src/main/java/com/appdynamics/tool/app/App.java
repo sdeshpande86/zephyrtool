@@ -42,7 +42,7 @@ public class App {
 	public static JsonParser parser = new JsonParser();
 	public static Gson gson = new Gson();
 	public static ExecutorService hierarchyExecutorService = Executors.newFixedThreadPool(5);
-	public static ScheduledExecutorService shceduledExecutor = Executors.newScheduledThreadPool(1);
+	public static ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(1);
 	
 	public static List<Issue> getFeaturesList() {
 		List<Issue> result = new ArrayList<Issue>();

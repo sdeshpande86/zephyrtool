@@ -3,11 +3,9 @@ package com.appdynamics.tool.app;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 
@@ -15,8 +13,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class HierarchyUpdateWorker implements Runnable {
-    private Set<String> outwardIssueIds = new LinkedHashSet<String>();
+    private static final int MAX_HIERARCHY_DEPTH = 10;
 
+    private StringBuilder finalHierarchy = new StringBuilder();
     private String issueId;
 
     public HierarchyUpdateWorker(String issueId) {
@@ -25,85 +24,47 @@ public class HierarchyUpdateWorker implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("*****************");
-        System.out.println("ISSUE ID = " + issueId);
-        System.out.println("*****************");
-        getOutwardIssueList(issueId);
+        String[] hierarchyPath = new String[MAX_HIERARCHY_DEPTH];
+        getHierarchyList(issueId, hierarchyPath, 0);
 
-        // Outward issue links are added in reverse with the last one being the parent issue. Reverse it to get the
-        // correct parent ordering starting from the root parent
-        List<String> outwardIssues = new LinkedList<String>(outwardIssueIds);
-        Collections.reverse(outwardIssues);
-
-        System.out.println(outwardIssues);
-
-        StringBuilder hierarchy = new StringBuilder();
-        hierarchy.append("/");
-        for (String issue : outwardIssues) {
-            hierarchy.append(getIssueSummary(issue) + "/");
-        }
-
-        hierarchy.append(getIssueSummary(issueId));
-        String hierarchyString = hierarchy.toString();
-        // Remove all unwanted characters from the string
+        String hierarchyString = finalHierarchy.toString();
+        // Remove all unwanted characters from the hierarchy string
         hierarchyString = hierarchyString.replaceAll("\"", "");
         hierarchyString = hierarchyString.replaceAll(" /", "/");
         hierarchyString = hierarchyString.replaceAll("/ ", "/");
+        hierarchyString = hierarchyString.substring(0,hierarchyString.lastIndexOf(","));
 
         System.out.println(hierarchyString);
 
         try {
-        	updateHierarchy(issueId, hierarchyString);
+            updateHierarchy(issueId, hierarchyString);
         } catch (Exception e) {
-        	System.out.println("Exception while updating hierarchy for issue " + issueId);
+            System.out.println("Exception while updating hierarchy for issue " + issueId);
         }
-    }
-
-    private Set<String> getOutwardIssueList(String issueId) {
-        String output = App.sendRequestNew("/rest/api/2/issue/" + issueId);
-        JsonObject fields = App.parser.parse(output).getAsJsonObject().get("fields").getAsJsonObject();
-
-        // Check if this issue has outward issue
-
-        if (hasOutwardIssue(issueId)) {
-            System.out.println("Has outward issue....");
-            JsonArray issueLinks = fields.get("issuelinks").getAsJsonArray();
-
-            for (int j = 0; j < issueLinks.size(); j++) {
-                if (issueLinks.get(j).getAsJsonObject().has("outwardIssue")) {
-                    // Get the name of the outward issue
-                    JsonObject issueLink = issueLinks.get(j).getAsJsonObject().get("outwardIssue").getAsJsonObject();
-                    String outwardIssueId = issueLink.get("id").getAsString();
-
-                    // Now we need to get the outward issues for this issue (outward issue of outward issue)
-                    System.out.println("Adding id to outwardList = " + outwardIssueId);
-
-                    if (!outwardIssueIds.contains(outwardIssueId)) {
-                        outwardIssueIds.add(outwardIssueId);
-                    }
-                    if (getOutwardIssueList(outwardIssueId) == null)
-                        return null;
-                }
-            }
-        } else {
-            return null;
-        }
-
-        return outwardIssueIds;
     }
 
     private boolean hasOutwardIssue(String issueId) {
+        if (issueId == null || issueId.length() <= 0) {
+            System.out.println("Invalid issue id");
+            return false;
+        }
+
         String output = App.sendRequestNew("/rest/api/2/issue/" + issueId);
         JsonObject fields = App.parser.parse(output).getAsJsonObject().get("fields").getAsJsonObject();
 
         // Check if this issue has outward issue
-
         if (fields.has("issuelinks")) {
             JsonArray issueLinks = fields.get("issuelinks").getAsJsonArray();
 
             for (int j = 0; j < issueLinks.size(); j++) {
-                // If this issue has an outward Issue, this can only be a Test Set or a Test
                 if (issueLinks.get(j).getAsJsonObject().has("outwardIssue")) {
+                    JsonObject issueLink = issueLinks.get(j).getAsJsonObject().get("outwardIssue").getAsJsonObject();
+                    String outwardIssueKey = issueLink.get("key").getAsString();
+
+                    // We need to add only "ZEP" issue links. Any "CORE" links shouldn't be considered as outward issues
+                    if (outwardIssueKey!= null && outwardIssueKey.contains("CORE-"))
+                        continue;
+
                     return true;
                 }
             }
@@ -119,7 +80,8 @@ public class HierarchyUpdateWorker implements Runnable {
         return summary;
     }
 
-    private void updateHierarchy(String issue, String hierarchy) throws InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
+    private void updateHierarchy(String issue, String hierarchy)
+            throws InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         if (issue == null || hierarchy == null || issue.length() <= 0 || hierarchy.length() <= 0) {
             return;
         }
@@ -141,7 +103,85 @@ public class HierarchyUpdateWorker implements Runnable {
                 "    {\"customfield_16221\": " + "\"" + hierarchy + "\"" + "}" +
                 "}";
         System.out.println("/rest/api/2/issue/" + issue);
-        
+
         App.sendHierarchyUpdatePUTRequest("/rest/api/2/issue/" + issue, "", Entity.entity(input, MediaType.APPLICATION_JSON_TYPE));
+    }
+
+    private List getParentIssues(String issueId) {
+        List<String> parentIssues = new ArrayList<>();
+        String output = App.sendRequestNew("/rest/api/2/issue/" + issueId);
+        JsonObject fields = App.parser.parse(output).getAsJsonObject().get("fields").getAsJsonObject();
+
+        // Check if this issue has outward issue
+
+        if (fields.has("issuelinks")) {
+            JsonArray issueLinks = fields.get("issuelinks").getAsJsonArray();
+
+            for (int j = 0; j < issueLinks.size(); j++) {
+                if (issueLinks.get(j).getAsJsonObject().has("outwardIssue")) {
+                    JsonObject issueLink = issueLinks.get(j).getAsJsonObject().get("outwardIssue").getAsJsonObject();
+                    String outwardIssueKey = issueLink.get("key").getAsString();
+
+                    // We need to add only "ZEP" issue links. Any "CORE" links shouldn't be added in hierarchy
+                    if (outwardIssueKey != null && !outwardIssueKey.contains("CORE-")) {
+                        String outwardIssueId = issueLink.get("id").getAsString();
+                        parentIssues.add(outwardIssueId);
+                    }
+                }
+            }
+        }
+
+        return parentIssues;
+    }
+
+    private void getHierarchyList(String issueId, String[] hierarchyPath, int hierarchyLen) {
+        if (!(hasOutwardIssue(issueId))) {
+            String issueSummary = getIssueSummary(issueId);
+            hierarchyPath[hierarchyLen] = issueSummary;
+            hierarchyLen++;
+
+            // Once we have the reached the parent issue i.e there are no more outward issues, we build the hierarchy
+            buildHierarchy(hierarchyPath);
+            return;
+        }
+
+        String issueSummary = getIssueSummary(issueId);
+        hierarchyPath[hierarchyLen] = issueSummary;
+        hierarchyLen++;
+
+        List parentIssues = getParentIssues(issueId);
+        for (int i = 0; i < parentIssues.size(); i++) {
+            String parentIssue = (String) parentIssues.get(i);
+            System.out.println(getIssueSummary(parentIssue));
+
+            getHierarchyList(parentIssue, hierarchyPath, hierarchyLen);
+        }
+    }
+
+    private void buildHierarchy(String[] hierarchyPath) {
+        List<String> hierarchyList = new ArrayList<>();
+        for (String hPath : hierarchyPath) {
+            if (hPath != null) {
+                hierarchyList.add(hPath);
+            }
+        }
+
+        // Outward issue links are added in reverse with the last one being the parent issue. Reverse it to get the
+        // correct parent ordering starting from the root parent
+        Collections.reverse(hierarchyList);
+
+        StringBuilder hierarchy = new StringBuilder();
+        hierarchy.append("/");
+        for (String issue : hierarchyList) {
+            if (issue != null) {
+                hierarchy.append(issue + "/");
+            }
+        }
+
+        String hierarchyString = hierarchy.toString();
+        hierarchyString = hierarchyString.substring(0,hierarchyString.lastIndexOf("/"));
+
+        finalHierarchy.append(hierarchyString);
+        finalHierarchy.append(",");
     }
 }
