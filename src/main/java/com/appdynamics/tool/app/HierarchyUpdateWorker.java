@@ -5,6 +5,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -13,8 +14,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class HierarchyUpdateWorker implements Runnable {
-    private static final int MAX_HIERARCHY_DEPTH = 10;
-
     private StringBuilder finalHierarchy = new StringBuilder();
     private String issueId;
 
@@ -24,8 +23,8 @@ public class HierarchyUpdateWorker implements Runnable {
 
     @Override
     public void run() {
-        String[] hierarchyPath = new String[MAX_HIERARCHY_DEPTH];
-        getHierarchyList(issueId, hierarchyPath, 0);
+        List<String> hierarchyPathList = new LinkedList<>();
+        getHierarchyList(issueId, hierarchyPathList);
 
         String hierarchyString = finalHierarchy.toString();
         // Remove all unwanted characters from the hierarchy string
@@ -134,37 +133,39 @@ public class HierarchyUpdateWorker implements Runnable {
         return parentIssues;
     }
 
-    private void getHierarchyList(String issueId, String[] hierarchyPath, int hierarchyLen) {
+    private void getHierarchyList(String issueId, List<String> hierarchyPath) {
         if (!(hasOutwardIssue(issueId))) {
             String issueSummary = getIssueSummary(issueId);
-            hierarchyPath[hierarchyLen] = issueSummary;
-            hierarchyLen++;
-
+            hierarchyPath.add(issueSummary);
             // Once we have the reached the parent issue i.e there are no more outward issues, we build the hierarchy
             buildHierarchy(hierarchyPath);
             return;
         }
 
         String issueSummary = getIssueSummary(issueId);
-        hierarchyPath[hierarchyLen] = issueSummary;
-        hierarchyLen++;
+        hierarchyPath.add(issueSummary);
 
         List parentIssues = getParentIssues(issueId);
         for (int i = 0; i < parentIssues.size(); i++) {
             String parentIssue = (String) parentIssues.get(i);
             System.out.println(getIssueSummary(parentIssue));
 
-            getHierarchyList(parentIssue, hierarchyPath, hierarchyLen);
+            getHierarchyList(parentIssue, hierarchyPath);
         }
     }
 
-    private void buildHierarchy(String[] hierarchyPath) {
+    private void buildHierarchy(List<String> hierarchyPath) {
         List<String> hierarchyList = new ArrayList<>();
         for (String hPath : hierarchyPath) {
             if (hPath != null) {
                 hierarchyList.add(hPath);
             }
         }
+
+        // Clear only the parent issues for the next hierarchy build.
+        String currentIssue = hierarchyPath.get(0);
+        hierarchyPath.clear();
+        hierarchyPath.add(currentIssue);
 
         // Outward issue links are added in reverse with the last one being the parent issue. Reverse it to get the
         // correct parent ordering starting from the root parent
@@ -178,6 +179,7 @@ public class HierarchyUpdateWorker implements Runnable {
             }
         }
 
+        // Remove the last "/" appended to the hierarchy string
         String hierarchyString = hierarchy.toString();
         hierarchyString = hierarchyString.substring(0,hierarchyString.lastIndexOf("/"));
 
