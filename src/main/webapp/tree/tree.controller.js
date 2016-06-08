@@ -165,7 +165,7 @@
 				+ ':'
 				+ $location.port()
 				+ '/zephyrtool/rest/createissue'
-				+ '?usecase=\'{{$root.selectedUseCase}}\'&parentissue=\'{{b.key}}\'">'
+				+ '?usecase={{$root.selectedUseCase}}&parentissue={{b.key}}">'
 				+ '<span class="glyphicon glyphicon-plus" aria-hidden="true">'
 				+ '</span></a></div>'
 				+ '</div>'
