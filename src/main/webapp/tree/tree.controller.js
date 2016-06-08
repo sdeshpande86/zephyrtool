@@ -1,19 +1,16 @@
 (function() {
 	'use strict';
 
-	angular.module('app').controller('TreeController', TreeController)
-			.directive('tree', tree);
-
-	TreeController.$inject = [ '$http', '$location', '$rootScope',
-			'RecursionHelper' ];
-	function TreeController($http, $location, $rootScope, RecursionHelper) {
+	var app = angular.module('app')
+			
+	app.controller('TreeController', function($http, $location, $rootScope,$scope){
 		delete $rootScope.flash;
-		var tc = this;
 		if ($rootScope.selectedUseCase) {
 			$http(
 					{
 						method : "GET",
-						url : $location.protocol() + '://' + $location.host() + ':' + $location.port()
+						url : $location.protocol() + '://' + $location.host()
+								+ ':' + $location.port()
 								+ '/zephyrtool/rest/getfeatures' + '?usecase='
 								+ $rootScope.selectedUseCase,
 					})
@@ -119,7 +116,7 @@
 									navigateTree(treeData);
 								}
 
-								tc.treeFamily = treeData;
+								$scope.treeFamily = treeData;
 							},
 							function myError(response) {
 								$rootScope.flash = {
@@ -130,42 +127,68 @@
 							});
 		}
 
-	}
-	;
+	});
 
-	tree.$inject = [ '$rootScope', 'RecursionHelper','$location' ];
-	function tree($rootScope, RecursionHelper,$location) {
+	app.directive(
+					'tree',
+					function() {
+						return {
+							restrict : 'E', 
+							replace : true, 
+							scope : {
+								t : '=src' 
+							},
+							template : '<ul><branch ng-repeat="c in t.children" src="c"></branch></ul>'
+						};
+					})
+					
+	app.directive('branch', function($compile,$rootScope,$location) {
 		return {
-			restrict : "AE",
+			restrict : 'E', 
+			replace : true, 
 			scope : {
-				family : '='
+				b : '=src' 
 			},
-			template :'<div style="{{ family.summary == \'parent\' ? \'display:none\' : \'display:block\' }}">'
-					+ '<div style="display:inline-block" ng-include="\'images/feature.svg\'" ng-show="{{family.issueType == \'Feature\'}}"></div>'
-					+ '<div style="display:inline-block" ng-include="\'images/testset.svg\'" ng-show="{{family.issueType == \'Test Set\'}}"></div>'
-					+ '<div style="display:inline-block" ng-include="\'images/test.svg\'" ng-show="{{family.issueType == \'Test\'}}"></div>'
-					+ '<a target="_blank" href="https://singularity.jira.com/issues/?jql=project=\'Zephyr POC\' and Hierarchy ~ \''
-					+ '{{family.summary}}'
-					+ '\'">'
-					+ ' {{ family.summary }}'
-					+ '</a>'
-					+ '<div style="display:inline-block;padding-left:10px" ng-hide="{{family.summary == undefined || family.summary == null}}">'
-					+ '<a target="_blank" href="'+$location.protocol() + '://' + $location.host() + ':' + $location.port() + '/zephyrtool/rest/createissue' + '?usecase=\'{{$root.selectedUseCase}}\'&parentissue=\'{{family.key}}\'">'
+			template : '<li><div style="display:inline-block" ng-include="\'images/feature.svg\'" ng-show="{{b.issueType == \'Feature\'}}"></div>'
+				+ '<div style="display:inline-block" ng-include="\'images/testset.svg\'" ng-show="{{b.issueType == \'Test Set\'}}"></div>'
+				+ '<div style="display:inline-block" ng-include="\'images/test.svg\'" ng-show="{{b.issueType == \'Test\'}}"></div>'		
+				+ '<a target="_blank" href="https://singularity.jira.com/issues/?jql=project=\'Zephyr POC\' and Hierarchy ~ \''
+				+ '{{b.summary}}'
+				+ '\'">'
+				+'{{ b.summary }}</a>'
+				+ '<div style="display:inline-block" ng-show="{{b.testCount > 0}}">&nbsp;({{b.testCount}} Tests) </div>'
+				+ '<div style="display:inline-block;padding-left:10px" ng-show="{{b.issueType == \'Feature\' || b.issueType == \'Test Set\'}}">'
+				+ '<a target="_blank" href="'
+				+ $location.protocol()
+				+ '://'
+				+ $location.host()
+				+ ':'
+				+ $location.port()
+				+ '/zephyrtool/rest/createissue'
+				+ '?usecase=\'{{$root.selectedUseCase}}\'&parentissue=\'{{b.key}}\'">'
+				+ '<span class="glyphicon glyphicon-plus" aria-hidden="true">'
+				+ '</span></a></div>'
+				+ '</div>'
+				+'</li>',
+			link : function(scope, element, attrs) {
+				
+				var has_children = angular.isArray(scope.b.children);
 
-					+ '<span class="glyphicon glyphicon-plus" aria-hidden="true">'
-					+ '</span></a></div>'
-					+ '</div>'
-					+ '<ul style="list-style:none">'
-					+ '<li ng-repeat="child in family.children">'
-					+ '<tree family="child"></tree>' + '</li>' + '</ul>',
-			compile : function(element) {
-				// Use the compile function from the RecursionHelper,
-				// And return the linking function(s) which it returns
-				return RecursionHelper.compile(element);
+				if (has_children) {
+					element.append('<tree class="treeclass" src="b"></tree>');
+
+					$compile(element.contents())(scope);
+				}
+				element.on('click', function(event) {
+					event.stopPropagation();
+					console.log(event.target);
+					if (has_children && event.target.nodeName == 'LI') {
+						element.toggleClass('collapsed');
+					}
+				});
 			}
-
 		};
-	}
-	;
+	})
+
 
 })();

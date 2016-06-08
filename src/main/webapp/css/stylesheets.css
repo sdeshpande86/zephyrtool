@@ -1,3 +1,5 @@
+@import "compass/css3";
+
 .selectwidthauto {
 	width: auto !important;
 	display: inline-block;
@@ -41,4 +43,32 @@
 
 .test-style {
 	list-style: square url('../images/test.png') !important;
+}
+.label-padding-left{
+	padding-left: 40px !important;
+}
+
+ ul {
+	list-style-type: none ;
+	padding-left: 20px ;
+}
+
+.treeclass li:before {
+	content: "-" ;
+	display: inline-block ;
+	width: 10px ;
+}
+
+.collapsed ul {
+	display: none ;
+}
+
+.treeclass li.collapsed:before {
+	content: '+' ;
+	display: inline-block ;
+	width: 10px;
+}
+
+.treeclass li a:hover {
+	cursor: pointer ;
 }

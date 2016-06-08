@@ -59,23 +59,24 @@
 		<ul class="sidebar-nav">
 			<li class="sidebar-brand">Filters</li>
 			<li>
-				<div style="display: inline-block;">Test Type:</div>
-				<ul style="list-style: none;">
+				<ul>
+					<div>Test Type:</div>
 					<li><span ng-repeat="testTypeData in testTypes"> <label
-							class="checkbox" for="{{testTypeData.id}}"> <input
+							class="checkbox label-padding-left" for="{{testTypeData.id}}"> <input
 								type="checkbox" ng-model="testType.ids[testTypeData.id]"
-								name="group" id="{{testTypeData.id}}" ng-click="$root.filter()" /> {{testTypeData.label}}
+								name="group" id="{{testTypeData.id}}" ng-click="$root.filter()" />
+								{{testTypeData.label}}
 						</label>
 					</span></li>
 				</ul>
 			</li>
 			<li>
-				<div style="display: inline-block;">Components:</div>
-				<ul style="list-style: none;">
+				<ul>
+					<div>Components:</div>
 					<li><span ng-repeat="componentData in components"> <label
-							class="checkbox" for="{{componentData.id}}"> <input
+							class="checkbox label-padding-left" for="{{componentData.id}}"> <input
 								type="checkbox" ng-model="component.ids[componentData.id]"
-								name="group" id="{{componentData.id}}" ng-click="$root.filter()"/>
+								name="group" id="{{componentData.id}}" ng-click="$root.filter()" />
 								{{componentData.label}}
 						</label>
 					</span></li>
@@ -91,7 +92,7 @@
 			<div class="row">
 				<div class="row">
 					<div class="col-sm-3"></div>
-					<div  class="col-sm-1">
+					<div class="col-sm-1">
 						<h4>Use Case:</h4>
 					</div>
 					<div class="col-sm-5">
