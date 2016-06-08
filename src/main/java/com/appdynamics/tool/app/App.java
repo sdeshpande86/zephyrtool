@@ -22,6 +22,7 @@ public class App {
 	public static List<String> usecases = new ArrayList<String>();
 	public static Map<String, String> usecaseValueToIdMap = new HashMap<String, String>();
 	public static Map<String, List<Issue>> usecaseFeaturesMap = new HashMap<String, List<Issue>>();
+	public static Map<String, String> hierarchyUpdateMap = new HashMap<String, String>();
 	public static JsonParser parser = new JsonParser();
 	public static Gson gson = new Gson();
 	
