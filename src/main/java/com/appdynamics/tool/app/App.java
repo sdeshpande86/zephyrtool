@@ -25,8 +25,8 @@ public class App {
 	public static Map<String, String> hierarchyUpdateMap = new HashMap<String, String>();
 	public static JsonParser parser = new JsonParser();
 	public static Gson gson = new Gson();
-	public static ExecutorService hierarchyExecutorService = Executors.newFixedThreadPool(5);
-	
+	public static ExecutorService hierarchyExecutorService = Executors.newCachedThreadPool();
+
 	public static String sendRequest(String url) {
 		Client client = ClientBuilder.newClient();
 		Response response = client.target(url).request().header("Authorization", Creds.authorizationString).get();
