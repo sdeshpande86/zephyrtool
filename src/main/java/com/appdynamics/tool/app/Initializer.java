@@ -7,6 +7,8 @@ public class Initializer implements ServletContextListener {
 	@Override
 	public void contextDestroyed(ServletContextEvent arg0) {
 		App.usecaseFeaturesMap.clear();
+		App.hierarchyUpdateMap.clear();
+		App.hierarchyExecutorService.shutdown();
 	}
 
 	@Override
