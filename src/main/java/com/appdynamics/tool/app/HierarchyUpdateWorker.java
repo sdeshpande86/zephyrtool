@@ -37,6 +37,7 @@ public class HierarchyUpdateWorker implements Runnable {
 
         try {
             updateHierarchy(issueId, hierarchyString);
+
         } catch (Exception e) {
             System.out.println("Exception while updating hierarchy for issue " + issueId);
         }
@@ -169,10 +170,8 @@ public class HierarchyUpdateWorker implements Runnable {
             }
         }
 
-        // Clear only the parent issues for the next hierarchy build.
-        String currentIssue = hierarchyPath.get(0);
-        hierarchyPath.clear();
-        hierarchyPath.add(currentIssue);
+        // Clear only the parent issues for the next hierarchy build. Parent issues start from index 1
+        hierarchyPath.subList(1, hierarchyPath.size()).clear();
 
         // Outward issue links are added in reverse with the last one being the parent issue. Reverse it to get the
         // correct parent ordering starting from the root parent
