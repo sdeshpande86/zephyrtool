@@ -106,24 +106,31 @@ public class HierarchyUpdateWorker implements Runnable {
         App.sendHierarchyUpdatePUTRequest("/rest/api/2/issue/" + issue, "", Entity.entity(input, MediaType.APPLICATION_JSON_TYPE));
     }
 
-    private List getParentIssues(String issueId) {
+    private List<String> getParentIssues(String issueId) {
         List<String> parentIssues = new ArrayList<>();
         String output = App.sendRequestNew("/rest/api/2/issue/" + issueId);
         JsonObject fields = App.parser.parse(output).getAsJsonObject().get("fields").getAsJsonObject();
 
         // Check if this issue has outward issue
-
         if (fields.has("issuelinks")) {
             JsonArray issueLinks = fields.get("issuelinks").getAsJsonArray();
 
             for (int j = 0; j < issueLinks.size(); j++) {
                 if (issueLinks.get(j).getAsJsonObject().has("outwardIssue")) {
-                    JsonObject issueLink = issueLinks.get(j).getAsJsonObject().get("outwardIssue").getAsJsonObject();
-                    String outwardIssueKey = issueLink.get("key").getAsString();
+                    // Outward issues can be "cloned" issues also. We need to ignore them
+                    // Cloned issue types are named "Cloners". If we encounter them, don't add to parent issue list
+                    JsonObject issueLink = issueLinks.get(j).getAsJsonObject();
+                    String issueTypeName = issueLink.get("type").getAsJsonObject().get("name").getAsString();
+                    if (issueTypeName.contains("Cloners")) {
+                        continue;
+                    }
+
+                    JsonObject outwardIssue = issueLink.get("outwardIssue").getAsJsonObject();
+                    String outwardIssueKey = outwardIssue.get("key").getAsString();
 
                     // We need to add only "ZEP" issue links. Any "CORE" links shouldn't be added in hierarchy
                     if (outwardIssueKey != null && !outwardIssueKey.contains("CORE-")) {
-                        String outwardIssueId = issueLink.get("id").getAsString();
+                        String outwardIssueId = outwardIssue.get("id").getAsString();
                         parentIssues.add(outwardIssueId);
                     }
                 }
@@ -145,9 +152,9 @@ public class HierarchyUpdateWorker implements Runnable {
         String issueSummary = getIssueSummary(issueId);
         hierarchyPath.add(issueSummary);
 
-        List parentIssues = getParentIssues(issueId);
+        List<String> parentIssues = getParentIssues(issueId);
         for (int i = 0; i < parentIssues.size(); i++) {
-            String parentIssue = (String) parentIssues.get(i);
+            String parentIssue = parentIssues.get(i);
             System.out.println(getIssueSummary(parentIssue));
 
             getHierarchyList(parentIssue, hierarchyPath);
