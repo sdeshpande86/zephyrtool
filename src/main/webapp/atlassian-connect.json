@@ -2,7 +2,7 @@
      "name": "AppD Zephyr Test View Addon",
      "description": "This plugin gives a hierarchial view of all issueType=Test in Zephyr project",
      "key": "appdynamics-zephyr",
-     "baseUrl": "TBD",
+     "baseUrl": "https://zephyr.engg.appdynamics.com",
      "vendor": {
          "name": "AppDynamics, Inc.",
          "url": "http://www.appdynamics.com"
