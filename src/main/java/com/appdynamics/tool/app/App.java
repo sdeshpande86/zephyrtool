@@ -55,7 +55,7 @@ public class App {
 	public static void getUsecases(String sampleIssueKey) {
 		String output = sendRequestNew("/rest/api/2/issue/" + sampleIssueKey + "/editmeta");
 		JsonObject issueFieldsJson = parser.parse(output).getAsJsonObject().get("fields").getAsJsonObject();
-		JsonArray usecaseValuesJson = issueFieldsJson.get("customfield_10520").getAsJsonObject().get("allowedValues").getAsJsonArray(); 
+		JsonArray usecaseValuesJson = issueFieldsJson.get("customfield_16420").getAsJsonObject().get("allowedValues").getAsJsonArray(); 
 		for (int i=0; i<usecaseValuesJson.size(); i++) {
 			JsonObject usecaseJson = usecaseValuesJson.get(i).getAsJsonObject();
 			usecaseValueToIdMap.put(usecaseJson.get("value").getAsString(), usecaseJson.get("id").getAsString());
@@ -69,27 +69,50 @@ public class App {
 	}
 	
 	public static void initialize() throws InterruptedException {
-		String output = sendGETRequest("/rest/api/2/search", "jql=project%20%3D%20ZEP%20AND%20issuetype%20%3D%20Feature");
-		
+		String output = sendGETRequest("/rest/api/2/search", "?jql=project%20%3D%20ZEP%20AND%20issuetype%20in%20(Feature%2C%20Subcategory)");
+
 		JsonObject json = parser.parse(output).getAsJsonObject();
-		int numberOfIssues = json.get("total").getAsInt();
+		float numberOfIssues = json.get("total").getAsFloat();
 		System.out.println("Total Features: " + numberOfIssues);
 		
-		JsonArray issuesList = json.get("issues").getAsJsonArray();
-		for (int i = 0; i < issuesList.size(); i++) {
-			Issue feature = new Issue();
-			JsonObject issue = issuesList.get(i).getAsJsonObject();
-			feature.setId(issue.get("id").getAsString());
-			feature.setKey(issue.get("key").getAsString());
-			// Construct list of usecases by calling editmeta for the first feature issue
-			if (i == 0) {
-				getUsecases(feature.getKey());
+		for (int s = 0; s < Math.ceil(numberOfIssues / 50); s++) {
+			output = sendGETRequest("/rest/api/2/search", "jql=project%20%3D%20ZEP%20AND%20issuetype%20in%20(Feature%2C%20Subcategory)&startAt=" + s*50);
+			json = parser.parse(output).getAsJsonObject();
+			JsonArray issuesList = json.get("issues").getAsJsonArray();
+			for (int i = 0; i < issuesList.size(); i++) {
+				boolean isRoot = true;
+				
+				Issue feature = new Issue();
+				JsonObject issue = issuesList.get(i).getAsJsonObject();
+				feature.setId(issue.get("id").getAsString());
+				feature.setKey(issue.get("key").getAsString());
+				JsonObject fields = issue.get("fields").getAsJsonObject();
+				feature.setSummary(fields.get("summary").getAsString());
+				String usecase = fields.get("customfield_16420").getAsJsonObject().get("value").getAsString();
+				
+				// Construct list of usecases by calling editmeta for the first feature issue
+				if (i == 0) {
+					getUsecases(feature.getKey());
+				}
+				
+				// Ignore features and sub categories having parents
+				String featureDetails = App.sendRequestNew("/rest/api/2/issue/" + issue.get("key").getAsString());
+				JsonObject featureDetailsJson = App.parser.parse(featureDetails).getAsJsonObject();
+				JsonObject featureFields = featureDetailsJson.get("fields").getAsJsonObject();
+				JsonArray featureIssueLinks = featureFields.get("issuelinks").getAsJsonArray();
+				for (int j = 0; j < featureIssueLinks.size(); j++) {
+					if(featureIssueLinks.get(j).getAsJsonObject().has("outwardIssue")) {
+						System.out.println("This feature/subcategory is not a root");
+						isRoot = false;
+						break;
+					}
+				}
+				
+				if (isRoot) {
+					usecaseFeaturesMap.get(usecase).add(feature);
+					System.out.println(feature);
+				}
 			}
-			JsonObject fields = issue.get("fields").getAsJsonObject();
-			feature.setSummary(fields.get("summary").getAsString());
-			String usecase = fields.get("customfield_10520").getAsJsonObject().get("value").getAsString();
-			usecaseFeaturesMap.get(usecase).add(feature);
-			System.out.println(feature);
 		}
 		List<Issue> features = getFeaturesList();
 		ExecutorService executorService = Executors.newFixedThreadPool(features.size());

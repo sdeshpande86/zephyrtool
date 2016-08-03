@@ -149,7 +149,8 @@
 			scope : {
 				b : '=src' 
 			},
-			template : '<li><div style="display:inline-block" ng-include="\'images/feature.svg\'" ng-show="{{b.issueType == \'Feature\'}}"></div>'
+			template : '<li><div style="display:inline-block" ng-include="\'images/subcategory.svg\'" ng-show="{{b.issueType == \'Subcategory\'}}"></div>'
+				+ '<div style="display:inline-block" ng-include="\'images/feature.svg\'" ng-show="{{b.issueType == \'Feature\'}}"></div>'
 				+ '<div style="display:inline-block" ng-include="\'images/testset.svg\'" ng-show="{{b.issueType == \'Test Set\'}}"></div>'
 				+ '<div style="display:inline-block" ng-include="\'images/test.svg\'" ng-show="{{b.issueType == \'Test\'}}"></div>'		
 				+ '<a target="_blank" href="https://singularity.jira.com/issues/?jql=project=\'Zephyr POC\' and Hierarchy ~ \''
