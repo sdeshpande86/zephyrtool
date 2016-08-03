@@ -69,14 +69,14 @@ public class App {
 	}
 	
 	public static void initialize() throws InterruptedException {
-		String output = sendGETRequest("/rest/api/2/search", "?jql=project%20%3D%20ZEP%20AND%20issuetype%20in%20(Feature%2C%20Subcategory)");
+		String output = sendGETRequest("/rest/api/2/search", "jql=project%20%3D%20ZEP%20AND%20issuetype%20in%20(Feature%2C%20Subcategory)");
 
 		JsonObject json = parser.parse(output).getAsJsonObject();
 		float numberOfIssues = json.get("total").getAsFloat();
 		System.out.println("Total Features: " + numberOfIssues);
 		
 		for (int s = 0; s < Math.ceil(numberOfIssues / 50); s++) {
-			output = sendGETRequest("/rest/api/2/search", "jql=project%20%3D%20ZEP%20AND%20issuetype%20in%20(Feature%2C%20Subcategory)&startAt=" + s*50);
+			output = sendGETRequest("/rest/api/2/search", "jql=project%20%3D%20ZEP%20AND%20issuetype%20in%20(Feature%2C%20Subcategory)&startAt=" + s * 50);
 			json = parser.parse(output).getAsJsonObject();
 			JsonArray issuesList = json.get("issues").getAsJsonArray();
 			for (int i = 0; i < issuesList.size(); i++) {
