@@ -102,7 +102,7 @@ public class App {
 				JsonArray featureIssueLinks = featureFields.get("issuelinks").getAsJsonArray();
 				for (int j = 0; j < featureIssueLinks.size(); j++) {
 					if(featureIssueLinks.get(j).getAsJsonObject().has("outwardIssue")) {
-						System.out.println("This feature/subcategory is not a root");
+						System.out.println("This feature/subcategory " + feature.getKey() + " is not a root");
 						isRoot = false;
 						break;
 					}
