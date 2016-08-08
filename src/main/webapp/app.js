@@ -62,11 +62,14 @@
 		};
 
 		$rootScope.components = [ {
-			id : "AllAgents",
-			label : "AllAgents"
+			id : "apm-apache",
+			label : "apm-apache"
 		}, {
 			id : "apm-core",
 			label : "apm-core"
+                }, {
+                        id : "apm-cpp",
+                        label : "apm-cpp"
 		}, {
 			id : "apm-db",
 			label : "apm-db"
@@ -76,15 +79,69 @@
 		}, {
 			id : "apm-java",
 			label : "apm-java"
+                }, {
+                        id : "apm-nodejs",
+                        label : "apm-nodejs"
+                }, {
+                        id : "apm-php",
+                        label : "apm-php"
+                }, {
+                        id : "apm-python",
+                        label : "apm-python"
+                }, {
+                        id : "apm-ruby",
+                        label : "apm-ruby"
+                }, {
+                        id : "apm-unified-agent",
+                        label : "apm-unified-agent"
+                }, {
+        		id : "analytics",
+        		label : "analytics"
 		}, {
-			id : "e2e",
-			label : "e2e"
+        		id : "eum-mobile",
+        		label : "eum-mobile"
 		}, {
-			id : "eum",
-			label : "eum"
+        		id : "eum-platform",
+   		     	label : "eum-platform"
 		}, {
-			id : "platform-services-dashboards",
-			label : "platform-services-dashboards"
+        		id : "eum-synthetic",
+        		label : "eum-synthetic"
+		}, {
+        		id : "eum-web",
+        		label : "eum-web"
+		}, {
+        		id : "event-service",
+        		label : "event-service"
+		}, {
+        		id : "npm",
+        		label : "npm"
+		}, {
+                        id : "platform-deployment",
+                        label : "platform-deployment"
+                }, {
+                        id : "platform-eventdata",
+                        label : "platform-eventdata"
+                }, {
+                        id : "platform-metricdata",
+                        label : "platform-metricdata"
+		}, {
+        		id : "platform-services-alerting",
+        		label : "platform-services-alerting"
+		}, {
+        		id : "platform-services-dashboards",
+        		label : "platform-services-dashboards"
+		}, {
+        		id : "platform-services-infrastructure",
+		        label : "platform-services-infrastructure"
+		}, {
+        		id : "platform-services-metadata",
+        		label : "platform-services-metadata"
+		}, {
+        		id : "platform-services-reports",
+        		label : "platform-services-reports"
+		}, {
+        		id : "sim",
+        		label : "sim"
 		}, {
 			id : "ui-platform",
 			label : "ui-platform"
@@ -92,7 +149,7 @@
 
 		$rootScope.component = {
 			ids : {
-				"AllAgents" : false
+				"apm-apache" : false
 			}
 		};
 		$rootScope.update = function() {
@@ -117,7 +174,7 @@
 
 			$rootScope.component = {
 				ids : {
-					"AllAgents" : false
+					"apm-apache" : false
 				}
 			};
 			$rootScope.isfilter = false;
