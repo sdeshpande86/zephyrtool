@@ -9,6 +9,7 @@ public class Issue {
 	private String issueType;
 	private String testType;
 	private String summary;
+	private String hierarchy;
 	private List<String> components;
 	private List<Issue> children;
 	private int testCount;
@@ -53,6 +54,14 @@ public class Issue {
 		this.summary = summary;
 	}
 
+	public String getHierarchy() {
+		return hierarchy;
+	}
+
+	public void setHierarchy(String hierarchy) {
+		this.hierarchy = hierarchy;
+	}
+	
 	public List<String> getComponents() {
 		if (components == null) {
 			components = new ArrayList<String>();
@@ -101,6 +110,7 @@ public class Issue {
 		.append("Issue Type: ").append(getIssueType()).append(",")
 		.append("Test Type: ").append(getTestType()).append(", ")
 		.append("Summary: ").append(getSummary()).append(", ")
+		.append("Hierarchy: ").append(getHierarchy()).append(", ")
 		.append("Components: ").append(getComponents()).append(",")
 		.append("Children: ").append(children).append(",")
 		.append("Test Count: ").append(getTestCount());

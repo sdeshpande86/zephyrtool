@@ -33,6 +33,12 @@ public class Worker implements Runnable {
 			}
 		}
 		
+		if (fields.has("customfield_16221") && !fields.get("customfield_16221").isJsonNull()) {
+			issue.setHierarchy(fields.get("customfield_16221").getAsString());
+		} else {
+			issue.setHierarchy("");
+		}
+		
 		if (fields.has("components")) {
 			JsonArray componentsArray = fields.get("components").getAsJsonArray();
 			for (int c = 0; c < componentsArray.size(); c++) {
