@@ -3,8 +3,17 @@
 
 	var app = angular.module('app')
 			
-	app.controller('TreeController', function($http, $location, $rootScope,$scope){
-		//console.log(sharedProperties.getValue("sharedUseCase"));
+	app.controller('TreeController', function($http, $location, $rootScope,$scope,sharedProperties){
+		console.log(sharedProperties.getValue("sharedUseCase"));
+		$rootScope.sidebarHide = true;
+
+		if(!sharedProperties.getValue("sharedUseCase")){
+			$rootScope.selectedUseCase = "Application Monitoring";
+		} else{
+			$rootScope.selectedUseCase = sharedProperties.getValue("sharedUseCase");
+		}
+		console.log($rootScope.selectedUseCase);
+
 		delete $rootScope.flash;
 		if ($rootScope.selectedUseCase) {
 			$http(
@@ -203,9 +212,9 @@
 									function mySucces(response) {
 										console.log(response.data);
 										if(response.data && response.data != ''){
-											window.open('https://singularity.jira.com/issues/?jql=project=\'Zephyr POC\' and (Hierarchy ~ \'' + scope.b.summary + '\' or id in (' + response.data+ '))', '_blank');
+											window.open('https://singularity.jira.com/issues/?jql=project=\'Zephyr POC\' and (Hierarchy ~ \'' + scope.b.hierarchy + '\' or id in (' + response.data+ '))', '_blank');
 										} else{
-											window.open('https://singularity.jira.com/issues/?jql=project=\'Zephyr POC\' and Hierarchy ~ \'' + scope.b.summary + '\'', '_blank');
+											window.open('https://singularity.jira.com/issues/?jql=project=\'Zephyr POC\' and Hierarchy ~ \'' + scope.b.hierarchy + '\'', '_blank');
 										}
 									},
 									function myError(response) {

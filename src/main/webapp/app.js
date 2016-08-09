@@ -13,7 +13,7 @@
 			controller : 'TreeController',
 			templateUrl : 'tree/tree.view.html',
 		}).otherwise({
-			redirectTo : '/'
+			redirectTo : '/tree'
 		});
 	}
 
@@ -165,6 +165,35 @@
 			$route.reload()
 			$location.path('/tree');
 		}
+		
+		/*$rootScope.refresh = function(){
+			console.log("button click");
+			$http(
+					{
+						method : "GET",
+						url : $location.protocol() + '://' + $location.host() + ':'
+								+ $location.port() + '/zephyrtool/rest/updatedata'
+					}).then(
+					function mySucces(response) {
+						console.log("response");
+
+						console.log(response);
+						$rootScope.flash = {
+								message : response.data,
+								type : false
+							};
+					},
+					function myError(response) {
+						console.log("error");
+						console.log(response);
+
+						$rootScope.flash = {
+							message : "Failed to get usecases with a status code"
+									+ response.statusText,
+							type : true
+						};
+					});
+		}*/
 
 		$rootScope.clearFilter = function() {
 			$rootScope.testType = {
