@@ -142,7 +142,7 @@
 						};
 					})
 					
-	app.directive('branch', function($compile,$rootScope,$location) {
+	app.directive('branch', function($http,$compile,$rootScope,$location) {
 		return {
 			restrict : 'E', 
 			replace : true, 
@@ -153,9 +153,9 @@
 				+ '<div style="display:inline-block" ng-include="\'images/feature.svg\'" ng-show="{{b.issueType == \'Feature\'}}"></div>'
 				+ '<div style="display:inline-block" ng-include="\'images/testset.svg\'" ng-show="{{b.issueType == \'Test Set\'}}"></div>'
 				+ '<div style="display:inline-block" ng-include="\'images/test.svg\'" ng-show="{{b.issueType == \'Test\'}}"></div>'		
-				+ '<a target="_blank" href="https://singularity.jira.com/issues/?jql=project=\'Zephyr POC\' and Hierarchy ~ \''
-				+ '{{b.summary}}'
-				+ '\'">'
+				+ '<a target="_blank" href="https://singularity.jira.com/browse/'
+				+ '{{b.key}}'
+				+ '">'
 				+'{{ b.summary }}</a>'
 				+ '<div style="display:inline-block" ng-show="{{b.testCount > 0}}">&nbsp;({{b.testCount}} Tests) </div>'
 				+ '<div style="display:inline-block;padding-left:10px" ng-show="{{b.issueType == \'Feature\' || b.issueType == \'Test Set\'}}">'
@@ -167,8 +167,15 @@
 				+ $location.port()
 				+ '/zephyrtool/rest/createissue'
 				+ '?usecase={{$root.selectedUseCase}}&parentissue={{b.key}}">'
-				+ '<span class="glyphicon glyphicon-plus" aria-hidden="true">'
+				+ '<span style="padding-left:10px" class="glyphicon glyphicon-plus" aria-hidden="true">'
 				+ '</span></a></div>'
+				+ '<a target="_blank" href="https://singularity.jira.com/issues/?jql=project=\'Zephyr POC\' and Hierarchy ~ \''
+				+ '{{b.summary}}'
+				+ '\'">'
+				+ '<span style="padding-left:10px" class="glyphicon glyphicon-search" aria-hidden="true">'
+				+ '</span></a>'
+				+ '<span style="padding-left:10px" class="glyphicon glyphicon-eye-open" aria-hidden="true">'
+				+ '</span>'
 				+ '</div>'
 				+'</li>',
 			link : function(scope, element, attrs) {
@@ -182,7 +189,32 @@
 				}
 				element.on('click', function(event) {
 					event.stopPropagation();
-					console.log(event.target);
+					if(event.target.nodeName == 'SPAN' && event.target.className.indexOf('glyphicon-eye-open') !== -1) {	
+					$http(
+							{
+								method : "GET",
+								url : $location.protocol() + '://' + $location.host()
+										+ ':' + $location.port()
+										+ '/zephyrtool/rest/finddependencies' + '?issueKey='
+										+ scope.b.key,
+							})
+							.then(
+									function mySucces(response) {
+										console.log(response.data);
+										if(response.data && response.data != ''){
+											window.open('https://singularity.jira.com/issues/?jql=project=\'Zephyr POC\' and Hierarchy ~ \'' + scope.b.summary + '\' and id in (' + response.data+ ')', '_blank');
+										} else{
+										window.open('https://singularity.jira.com/issues/?jql=project=\'Zephyr POC\' and Hierarchy ~ \'' + scope.b.summary + '\'', '_blank');
+										}
+									},
+									function myError(response) {
+										$rootScope.flash = {
+											message : "Failed to get dependencies for a test"
+													+ response.statusText,
+											type : true
+										};
+									});
+					}
 					if (has_children && event.target.nodeName == 'LI') {
 						element.toggleClass('collapsed');
 					}
