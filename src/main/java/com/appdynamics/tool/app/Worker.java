@@ -51,7 +51,7 @@ public class Worker implements Runnable {
 			Issue childIssue = new Issue();
 			
 			// If inward issue is not present or type is not "sets requirements for", continue
-			if (!issueLinks.get(j).getAsJsonObject().has("inwardIssue") || !issueLinks.get(j).getAsJsonObject().get("type").getAsJsonObject().get("outward").getAsString().equalsIgnoreCase("sets requirements for")) {
+			if (!issueLinks.get(j).getAsJsonObject().has("inwardIssue") || !issueLinks.get(j).getAsJsonObject().get("type").getAsJsonObject().get("outward").getAsString().equalsIgnoreCase("Is a child of")) {
 				continue;
 			}
 			
