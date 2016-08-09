@@ -23,8 +23,8 @@ public class FindDependenciesService {
 		JsonObject fields = issueJson.get("fields").getAsJsonObject();
 		JsonArray issueLinks = fields.get("issuelinks").getAsJsonArray();
 		for (int j = 0; j < issueLinks.size(); j++) {
-			if (issueLinks.get(j).getAsJsonObject().has("inwardIssue") && issueLinks.get(j).getAsJsonObject().get("type").getAsJsonObject().get("inward").getAsString().equalsIgnoreCase("is caused by")) {
-				dependentIssueKeys.add(issueLinks.get(j).getAsJsonObject().get("inwardIssue").getAsJsonObject().get("key").getAsString());
+			if (issueLinks.get(j).getAsJsonObject().has("outwardIssue") && issueLinks.get(j).getAsJsonObject().get("type").getAsJsonObject().get("outward").getAsString().equalsIgnoreCase("blocks")) {
+				dependentIssueKeys.add(issueLinks.get(j).getAsJsonObject().get("outwardIssue").getAsJsonObject().get("key").getAsString());
 			}
 		}
 		return App.gson.toJson(dependentIssueKeys);
