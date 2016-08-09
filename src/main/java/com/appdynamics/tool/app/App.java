@@ -91,7 +91,7 @@ public class App {
 				String usecase = fields.get("customfield_16420").getAsJsonObject().get("value").getAsString();
 				
 				// Construct list of usecases by calling editmeta for the first feature issue
-				if (i == 0) {
+				if (s == 0 && i == 0) {
 					getUsecases(feature.getKey());
 				}
 				
