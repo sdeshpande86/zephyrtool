@@ -168,7 +168,7 @@
 				+ '">'
 				+'{{ b.summary }}</a>'
 				+ '<div style="display:inline-block" ng-show="{{b.testCount > 0}}">&nbsp;({{b.testCount}} Tests) </div>'
-				+ '<div style="display:inline-block;padding-left:10px" ng-show="{{b.issueType == \'Feature\' || b.issueType == \'Test Set\'}}">'
+				+ '<div style="display:inline-block;padding-left:10px" ng-show="{{b.issueType == \'Feature\' || b.issueType == \'Test Set\' || b.issueType == \'Subcategory\'}}">'
 				+ '<a target="_blank" href="'
 				+ $location.protocol()
 				+ '://'
@@ -179,9 +179,9 @@
 				+ '?usecase={{$root.selectedUseCase}}&parentissue={{b.key}}">'
 				+ '<span style="padding-left:10px" class="glyphicon glyphicon-plus" aria-hidden="true">'
 				+ '</span></a></div>'
-				+ '<a target="_blank" href="https://singularity.jira.com/issues/?jql=project=\'Zephyr POC\' and Hierarchy ~ \''
+				+ '<a target="_blank" href="https://singularity.jira.com/issues/?jql=project=\'Zephyr POC\' and issuetype = test and Hierarchy ~ \''
 				+ '{{b.hierarchy}}'
-				+ '\'">'
+				+ '\' ORDER BY \'Test Order\'">'
 				+ '<span style="padding-left:10px" class="glyphicon glyphicon-search" aria-hidden="true">'
 				+ '</span></a>'
 				+ '<span style="padding-left:10px" class="glyphicon glyphicon-eye-open" aria-hidden="true">'
@@ -212,9 +212,9 @@
 									function mySucces(response) {
 										console.log(response.data);
 										if(response.data && response.data != ''){
-											window.open('https://singularity.jira.com/issues/?jql=project=\'Zephyr POC\' and (Hierarchy ~ \'' + scope.b.hierarchy + '\' or id in (' + response.data+ '))', '_blank');
+											window.open('https://singularity.jira.com/issues/?jql=project=\'Zephyr POC\' and issuetype = test and (Hierarchy ~ \'' + scope.b.hierarchy + '\' or id in (' + response.data+ ')) ORDER BY \'Test Order\'', '_blank');
 										} else{
-											window.open('https://singularity.jira.com/issues/?jql=project=\'Zephyr POC\' and Hierarchy ~ \'' + scope.b.hierarchy + '\'', '_blank');
+											window.open('https://singularity.jira.com/issues/?jql=project=\'Zephyr POC\' and issuetype = test and Hierarchy ~ \'' + scope.b.hierarchy + '\' ORDER BY \'Test Order\'', '_blank');
 										}
 									},
 									function myError(response) {
