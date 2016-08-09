@@ -10,7 +10,7 @@ import com.appdynamics.tool.app.App;
 public class UpdateDataService {
 	@GET
 	@Produces("application/json")
-	public String updateData() throws InterruptedException {
+	public synchronized String updateData() throws InterruptedException {
 		App.usecases.clear();
 		App.usecaseFeaturesMap.clear();
 		App.initialize();
