@@ -5,7 +5,7 @@
 	// the route provides parses the URL and injects the appropriate partial
 	// page
 	angular.module('app', [ 'ngRoute', 'ngCookies' ]).config(config).run(run).directive(
-					'ngDropdownMultiselect', ngDropdownMultiselect);
+			'ngDropdownMultiselect', ngDropdownMultiselect).service('sharedProperties',sharedProperties);
 	config.$inject = [ '$routeProvider', '$locationProvider' ];
 	function config($routeProvider, $locationProvider) {
 
@@ -18,8 +18,8 @@
 	}
 
 	run.$inject = [ '$rootScope', '$route', '$location', '$cookieStore',
-			'$http' ];
-	function run($rootScope, $route, $location, $cookieStore, $http) {
+	                '$http','sharedProperties' ];
+	function run($rootScope, $route, $location, $cookieStore, $http,sharedProperties) {
 
 		delete $rootScope.flash;
 		getUsecases($rootScope, $http, $location);
@@ -154,6 +154,8 @@
 		$rootScope.update = function() {
 			$rootScope.sidebarHide = true;
 			$rootScope.isfilter = false;
+			sharedProperties.setValue("sharedUseCase",$rootScope.selectedUseCase)
+			console.log(sharedProperties.getValue("sharedUseCase"));
 			$route.reload()
 			$location.path('/tree');
 		}
@@ -182,6 +184,19 @@
 		}
 	}
 
+	function sharedProperties() {
+		var hashtable = {};
+		
+		return {
+			setValue: function (key, value) {
+				hashtable[key] = value;
+			},
+			getValue: function (key) {
+				return hashtable[key];
+			}
+		};
+	}
+	
 	function getUsecases($rootScope, $http, $location) {
 		$http(
 				{
