@@ -4,8 +4,7 @@
 	// main <html> tag
 	// the route provides parses the URL and injects the appropriate partial
 	// page
-	angular.module('app', [ 'ngRoute', 'ngCookies' ]).config(config).run(run)
-			.factory('RecursionHelper', RecursionHelper).directive(
+	angular.module('app', [ 'ngRoute', 'ngCookies' ]).config(config).run(run).directive(
 					'ngDropdownMultiselect', ngDropdownMultiselect);
 	config.$inject = [ '$routeProvider', '$locationProvider' ];
 	function config($routeProvider, $locationProvider) {
