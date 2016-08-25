@@ -2,7 +2,7 @@
 	'use strict';
 
 	var app = angular.module('app')
-			
+
 	app.controller('TreeController', function($http, $location, $rootScope,$scope,sharedProperties){
 		console.log(sharedProperties.getValue("sharedUseCase"));
 		$rootScope.sidebarHide = true;
@@ -130,7 +130,7 @@
 							},
 							function myError(response) {
 								$rootScope.flash = {
-									message : "Failed to get features with a status code"
+									message : "Failed to get features with a status code "
 											+ response.statusText,
 									type : true
 								};
@@ -143,30 +143,43 @@
 					'tree',
 					function() {
 						return {
-							restrict : 'E', 
-							replace : true, 
+							restrict : 'E',
+							replace : true,
 							scope : {
-								t : '=src' 
+								t : '=src'
 							},
-							template : '<ul><branch ng-repeat="c in t.children" src="c"></branch></ul>'
+							template : '<ul><branch ng-repeat="c in t.children | orderBy:\'issueType\'" src="c"></branch></ul>'
 						};
 					})
-					
+
 	app.directive('branch', function($http,$compile,$rootScope,$location) {
 		return {
-			restrict : 'E', 
-			replace : true, 
+			restrict : 'E',
+			replace : true,
 			scope : {
-				b : '=src' 
+				b : '=src'
 			},
-			template : '<li><div style="display:inline-block" ng-include="\'images/subcategory.svg\'" ng-show="{{b.issueType == \'Subcategory\'}}"></div>'
+			template : '<li>'
+			    + '<div style="display:inline-block" ng-include="\'images/subcategory.svg\'" ng-show="{{b.issueType == \'Subcategory\'}}"></div>'
 				+ '<div style="display:inline-block" ng-include="\'images/feature.svg\'" ng-show="{{b.issueType == \'Feature\'}}"></div>'
 				+ '<div style="display:inline-block" ng-include="\'images/testset.svg\'" ng-show="{{b.issueType == \'Test Set\'}}"></div>'
-				+ '<div style="display:inline-block" ng-include="\'images/test.svg\'" ng-show="{{b.issueType == \'Test\'}}"></div>'		
-				+ '<a target="_blank" href="https://singularity.jira.com/browse/'
-				+ '{{b.key}}'
-				+ '">'
-				+'{{ b.summary }}</a>'
+				+ '<div style="display:inline-block" ng-include="\'images/test.svg\'" ng-show="{{b.issueType == \'Test\'}}"></div>'
+				+ '<div style="display:inline-block" ng-show="{{b.issueType == \'Test\'}}">'
+                + '<a target="_blank" style="color:#337ab7" href="https://singularity.jira.com/browse/{{b.key}}">'
+                + '{{ b.summary }}</a>'
+                + '</div>'
+                + '<div style="display:inline-block" ng-show="{{b.issueType == \'Subcategory\'}}">'
+                + '<a target="_blank" style="color:#555; font-size:medium" href="https://singularity.jira.com/browse/{{b.key}}">'
+                + '<b>{{ b.summary }}</b></a>'
+                + '</div>'
+                + '<div style="display:inline-block" ng-show="{{b.issueType == \'Feature\'}}">'
+                + '<a target="_blank" style="color:#555; font-size:small" href="https://singularity.jira.com/browse/{{b.key}}">'
+                + '<b>{{ b.summary }}</b></a>'
+                + '</div>'
+                + '<div style="display:inline-block" ng-show="{{b.issueType == \'Test Set\'}}" >'
+                + '<a target="_blank" style="color:#337ab7" href="https://singularity.jira.com/browse/{{b.key}}">'
+                + '<b>{{ b.summary }}</b></a>'
+                + '</div>'
 				+ '<div style="display:inline-block" ng-show="{{b.testCount > 0}}">&nbsp;({{b.testCount}} Tests) </div>'
 				+ '<div style="display:inline-block;padding-left:10px" ng-show="{{b.issueType == \'Feature\' || b.issueType == \'Test Set\' || b.issueType == \'Subcategory\'}}">'
 				+ '<a target="_blank" href="'
@@ -189,7 +202,7 @@
 				+ '</div>'
 				+'</li>',
 			link : function(scope, element, attrs) {
-				
+
 				var has_children = angular.isArray(scope.b.children);
 
 				if (has_children) {
@@ -199,7 +212,7 @@
 				}
 				element.on('click', function(event) {
 					event.stopPropagation();
-					if(event.target.nodeName == 'SPAN' && event.target.className.indexOf('glyphicon-eye-open') !== -1) {	
+					if(event.target.nodeName == 'SPAN' && event.target.className.indexOf('glyphicon-eye-open') !== -1) {
 					$http(
 							{
 								method : "GET",
