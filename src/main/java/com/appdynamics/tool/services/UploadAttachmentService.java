@@ -25,6 +25,7 @@ import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 
+import com.appdynamics.tool.app.App;
 import com.appdynamics.tool.app.Creds;
 
 @Path("uploadattachment")
@@ -40,7 +41,7 @@ public class UploadAttachmentService {
 			final FormDataMultiPart multipart = (FormDataMultiPart) formDataMultiPart.bodyPart(filePart);
 
 			final WebTarget target = client
-					.target("https://singularity.jira.com/rest/api/2/issue/" + issueKey + "/attachments");
+					.target(App.JIRA_BASE_URL + "/rest/api/2/issue/" + issueKey + "/attachments");
 			final Response response = target.request().header("X-Atlassian-Token", "no-check")
 					.header("Authorization", Creds.authorizationString)
 					.post(Entity.entity(multipart, multipart.getMediaType()));

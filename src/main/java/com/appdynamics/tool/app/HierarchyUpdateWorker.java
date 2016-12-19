@@ -14,7 +14,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class HierarchyUpdateWorker implements Runnable {
-    private static final String ISSUE_URL = "https://singularity.jira.com/rest/api/2/issue/";
+    private static final String ISSUE_URL = App.JIRA_BASE_URL + "/rest/api/2/issue/";
     private Set<String> outwardIssueIds = new LinkedHashSet<String>();
 
     private String issueId;
@@ -137,7 +137,7 @@ public class HierarchyUpdateWorker implements Runnable {
         App.hierarchyUpdateMap.put(issue, hierarchy);
 
         String input = "{ \"fields\": " +
-                "    {\"customfield_16221\": " + "\"" + hierarchy + "\"" + "}" +
+                "    {\"" + App.HIERARCHY_FIELD_ID + "\": " + "\"" + hierarchy + "\"" + "}" +
                 "}";
         String urlString = ISSUE_URL + issue;
         System.out.println("POST URL STRING = " + urlString);

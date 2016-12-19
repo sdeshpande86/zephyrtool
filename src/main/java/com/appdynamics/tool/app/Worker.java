@@ -9,7 +9,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class Worker implements Runnable {
-	public static String urlPrefix = "https://singularity.jira.com/rest/api/2/issue/";
+	public static String urlPrefix = App.JIRA_BASE_URL + "/rest/api/2/issue/";
 	
 	private Issue issue;
 	
@@ -28,13 +28,13 @@ public class Worker implements Runnable {
 		
 		// Set test type only if issue type is Test
 		if (issue.getIssueType().equalsIgnoreCase("Test")) {
-			if (fields.has("customfield_16020")) {
-				issue.setTestType(fields.get("customfield_16020").getAsJsonObject().get("value").getAsString());
+			if (fields.has(App.TESTTYPE_FIELD_ID)) {
+				issue.setTestType(fields.get(App.TESTTYPE_FIELD_ID).getAsJsonObject().get("value").getAsString());
 			}
 		}
 		
-		if (fields.has("customfield_16221") && !fields.get("customfield_16221").isJsonNull()) {
-			issue.setHierarchy(fields.get("customfield_16221").getAsString());
+		if (fields.has(App.HIERARCHY_FIELD_ID) && !fields.get(App.HIERARCHY_FIELD_ID).isJsonNull()) {
+			issue.setHierarchy(fields.get(App.HIERARCHY_FIELD_ID).getAsString());
 		} else {
 			issue.setHierarchy("");
 		}
