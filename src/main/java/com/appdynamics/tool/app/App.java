@@ -24,6 +24,18 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class App {
+	public static final String JIRA_BASE_URL = "https://eng-jira.corp.appdynamics.com";
+	public static final String PROJECT = "QE";
+	public static final String PROJECT_ID = "10000";
+	public static final String USECASE_FIELD_ID = "customfield_10105";
+	public static final String HIERARCHY_FIELD_ID = "customfield_10104";
+	public static final String TESTTYPE_FIELD_ID = "customfield_10102";
+	public static final String AUTOMATED_FIELD_ID = "customfield_10101";
+	
+	public static final String ID_FOR_ISSUE_TYPE_TEST = "10007";
+	public static final String ID_FOR_TEST_TYPE_FUNCTIONALITY = "10102";
+	public static final String ID_FOR_AUTOMATED_NO = "10101";
+	
 	public static String CONTEXT_KEY;
 	public static String CONTEXT_CLIENT_KEY;
 	public static String CONTEXT_PUBLIC_KEY;
@@ -55,7 +67,7 @@ public class App {
 	public static void getUsecases(String sampleIssueKey) {
 		String output = sendRequestNew("/rest/api/2/issue/" + sampleIssueKey + "/editmeta");
 		JsonObject issueFieldsJson = parser.parse(output).getAsJsonObject().get("fields").getAsJsonObject();
-		JsonArray usecaseValuesJson = issueFieldsJson.get("customfield_16420").getAsJsonObject().get("allowedValues").getAsJsonArray(); 
+		JsonArray usecaseValuesJson = issueFieldsJson.get(USECASE_FIELD_ID).getAsJsonObject().get("allowedValues").getAsJsonArray(); 
 		for (int i=0; i<usecaseValuesJson.size(); i++) {
 			JsonObject usecaseJson = usecaseValuesJson.get(i).getAsJsonObject();
 			usecaseValueToIdMap.put(usecaseJson.get("value").getAsString(), usecaseJson.get("id").getAsString());
@@ -69,14 +81,14 @@ public class App {
 	}
 	
 	public static void initialize() throws InterruptedException {
-		String output = sendGETRequest("/rest/api/2/search", "jql=project%20%3D%20ZEP%20AND%20issuetype%20in%20(Feature%2C%20Subcategory)");
+		String output = sendGETRequest("/rest/api/2/search", "jql=project%20%3D%20" + PROJECT + "%20AND%20issuetype%20in%20(Feature)");
 
 		JsonObject json = parser.parse(output).getAsJsonObject();
 		float numberOfIssues = json.get("total").getAsFloat();
 		System.out.println("Total Features: " + numberOfIssues);
 		
 		for (int s = 0; s < Math.ceil(numberOfIssues / 50); s++) {
-			output = sendGETRequest("/rest/api/2/search", "jql=project%20%3D%20ZEP%20AND%20issuetype%20in%20(Feature%2C%20Subcategory)&startAt=" + s * 50);
+			output = sendGETRequest("/rest/api/2/search", "jql=project%20%3D%20" + PROJECT + "%20AND%20issuetype%20in%20(Feature)&startAt=" + s * 50);
 			json = parser.parse(output).getAsJsonObject();
 			JsonArray issuesList = json.get("issues").getAsJsonArray();
 			for (int i = 0; i < issuesList.size(); i++) {
@@ -88,7 +100,7 @@ public class App {
 				feature.setKey(issue.get("key").getAsString());
 				JsonObject fields = issue.get("fields").getAsJsonObject();
 				feature.setSummary(fields.get("summary").getAsString());
-				String usecase = fields.get("customfield_16420").getAsJsonObject().get("value").getAsString();
+				String usecase = fields.get(USECASE_FIELD_ID).getAsJsonObject().get("value").getAsString();
 				
 				// Construct list of usecases by calling editmeta for the first feature issue
 				if (s == 0 && i == 0) {

@@ -31,13 +31,13 @@ public class Worker implements Runnable {
 		
 		// Set test type only if issue type is Test
 		if (issue.getIssueType().equalsIgnoreCase("Test")) {
-			if (fields.has("customfield_16020")) {
-				issue.setTestType(fields.get("customfield_16020").getAsJsonObject().get("value").getAsString());
+			if (fields.has(App.TESTTYPE_FIELD_ID)) {
+				issue.setTestType(fields.get(App.TESTTYPE_FIELD_ID).getAsJsonObject().get("value").getAsString());
 			}
 		}
 		
-		if (fields.has("customfield_16221") && !fields.get("customfield_16221").isJsonNull()) {
-			issue.setHierarchy(fields.get("customfield_16221").getAsString());
+		if (fields.has(App.HIERARCHY_FIELD_ID) && !fields.get(App.HIERARCHY_FIELD_ID).isJsonNull()) {
+			issue.setHierarchy(fields.get(App.HIERARCHY_FIELD_ID).getAsString());
 		} else {
 			issue.setHierarchy("");
 		}

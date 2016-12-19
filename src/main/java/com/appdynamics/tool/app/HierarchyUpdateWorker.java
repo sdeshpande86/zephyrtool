@@ -100,7 +100,7 @@ public class HierarchyUpdateWorker implements Runnable {
         App.hierarchyUpdateMap.put(issue, hierarchy);
 
         String input = "{ \"fields\": " +
-                "    {\"customfield_16221\": " + "\"" + hierarchy + "\"" + "}" +
+                "    {\"" + App.HIERARCHY_FIELD_ID + "\": " + "\"" + hierarchy + "\"" + "}" +
                 "}";
         System.out.println("/rest/api/2/issue/" + issue);
 
