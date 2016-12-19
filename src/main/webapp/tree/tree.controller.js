@@ -130,7 +130,7 @@
 							},
 							function myError(response) {
 								$rootScope.flash = {
-									message : "Failed to get features with a status code "
+									message : "Failed to get features with a status code"
 											+ response.statusText,
 									type : true
 								};
@@ -159,19 +159,14 @@
 			scope : {
 				b : '=src' 
 			},
-			template : '<li>'
-			    + '<div style="display:inline-block" ng-include="\'images/subcategory.svg\'" ng-show="{{b.issueType == \'Subcategory\'}}"></div>'
+			template : '<li><div style="display:inline-block" ng-include="\'images/subcategory.svg\'" ng-show="{{b.issueType == \'Subcategory\'}}"></div>'
 				+ '<div style="display:inline-block" ng-include="\'images/feature.svg\'" ng-show="{{b.issueType == \'Feature\'}}"></div>'
 				+ '<div style="display:inline-block" ng-include="\'images/testset.svg\'" ng-show="{{b.issueType == \'Test Set\'}}"></div>'
-				+ '<div style="display:inline-block" ng-include="\'images/test.svg\'" ng-show="{{b.issueType == \'Test\'}}"></div>'
-				+ '<div style="display:inline-block" ng-show="{{b.issueType == \'Test\' && root.showTestCase}}">'
-                + '<a target="_blank" style="color:#337ab7" href="https://singularity.jira.com/browse/{{b.key}}">'
-                + '{{ b.summary }}</a>'
-                + '</div>'
-                + '<div style="display:inline-block" ng-show="{{b.issueType == \'Feature\' || b.issueType == \'Test Set\' || b.issueType == \'Subcategory\'}}">'
-                + '<a target="_blank" style="color:#555; font-size:small" href="https://singularity.jira.com/browse/{{b.key}}">'
-                + '<b>{{ b.summary }}</b></a>'
-                + '</div>'
+				+ '<div style="display:inline-block" ng-include="\'images/test.svg\'" ng-show="{{b.issueType == \'Test\'}}"></div>'		
+				+ '<a target="_blank" href="https://singularity.jira.com/browse/'
+				+ '{{b.key}}'
+				+ '">'
+				+'{{ b.summary }}</a>'
 				+ '<div style="display:inline-block" ng-show="{{b.testCount > 0}}">&nbsp;({{b.testCount}} Tests) </div>'
 				+ '<div style="display:inline-block;padding-left:10px" ng-show="{{b.issueType == \'Feature\' || b.issueType == \'Test Set\' || b.issueType == \'Subcategory\'}}">'
 				+ '<a target="_blank" href="'
