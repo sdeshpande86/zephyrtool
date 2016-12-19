@@ -40,10 +40,10 @@ public class HierarchyUpdateWorker implements Runnable {
         StringBuilder hierarchy = new StringBuilder();
         hierarchy.append("/");
         for (String issue : outwardIssues) {
-            hierarchy.append(getIssueSummary(issue) + "/");
+            hierarchy.append(issue + "/");
         }
 
-        hierarchy.append(getIssueSummary(issueId));
+        hierarchy.append(issueId);
         String hierarchyString = hierarchy.toString();
         // Remove all unwanted characters from the string
         hierarchyString = hierarchyString.replaceAll("\"", "");
@@ -108,14 +108,6 @@ public class HierarchyUpdateWorker implements Runnable {
         }
 
         return false;
-    }
-
-    private String getIssueSummary(String issueId) {
-        String url = ISSUE_URL + issueId;
-        String output = App.sendRequest(url);
-        JsonObject fields = App.parser.parse(output).getAsJsonObject().get("fields").getAsJsonObject();
-        String summary = fields.get("summary").toString();
-        return summary;
     }
 
     private void updateHierarchy(String issue, String hierarchy) {
