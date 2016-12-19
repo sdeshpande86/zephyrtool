@@ -72,14 +72,7 @@ public class HierarchyUpdateWorker implements Runnable {
 
         return false;
     }
-
-    private String getIssueSummary(String issueId) {
-        String output = App.sendRequestNew("/rest/api/2/issue/" + issueId);
-        JsonObject fields = App.parser.parse(output).getAsJsonObject().get("fields").getAsJsonObject();
-        String summary = fields.get("summary").toString();
-        return summary;
-    }
-
+    
     private void updateHierarchy(String issue, String hierarchy)
             throws InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException {
         if (issue == null || hierarchy == null || issue.length() <= 0 || hierarchy.length() <= 0) {
@@ -143,20 +136,18 @@ public class HierarchyUpdateWorker implements Runnable {
 
     private void getHierarchyList(String issueId, List<String> hierarchyPath) {
         if (!(hasOutwardIssue(issueId))) {
-            String issueSummary = getIssueSummary(issueId);
-            hierarchyPath.add(issueSummary);
+            hierarchyPath.add(issueId);
             // Once we have the reached the parent issue i.e there are no more outward issues, we build the hierarchy
             buildHierarchy(hierarchyPath);
             return;
         }
 
-        String issueSummary = getIssueSummary(issueId);
-        hierarchyPath.add(issueSummary);
+        hierarchyPath.add(issueId);
 
         List<String> parentIssues = getParentIssues(issueId);
         for (int i = 0; i < parentIssues.size(); i++) {
             String parentIssue = parentIssues.get(i);
-            System.out.println(getIssueSummary(parentIssue));
+            System.out.println(parentIssue);
 
             getHierarchyList(parentIssue, hierarchyPath);
         }
